@@ -1,0 +1,112 @@
+\section{Theseus}
+
+\subsection{Nombre del proyecto o sistema operativo}
+El nombre del sistema operativo es ``Theseus''; según \citep{theseus2023}, fue nombrado así en honor a la paradoja del barco de Teseo, que plantea la cuestión de, si a un barco le renuevas todas sus piezas, ¿Ese barco renovado sigue siendo el mismo barco? Esta idea de renovación de cada componente es característica de este sistema operativo.
+
+\subsection{Enlace al repositorio y/o documentación oficial}
+\begin{itemize}
+    \item \textbf{Enlace al repositorio oficial:} \url{https://github.com/theseus-os/Theseus} 
+    \item \textbf{Enlace al libro oficial:} \url{https://www.theseus-os.com/Theseus/book/index.html}
+\end{itemize}
+
+\subsection{Objetivo del proyecto}
+Según \citep{boos2020theseus}, este sistema operativo es en esencia experimental, aunque puede usarse como objeto de estudio debido a su innovadora arquitectura. También tiene objetivos técnicos, como reestructurar la modularidad, reducir el ``state spill'' y la recuperación ante fallos (fault recovery).
+
+\subsection{Lenguaje(s) de implementación}
+Según \citep{boos2020theseus} y confirmando con el repositorio oficial \citep{theseus_GitHub}, el sistema operativo Theseus fue casi completamente desarrollado en Rust, aunque también se ha usado C para una futura implementación de la librería ``libc'' dirigida a Theseus (tlibc), ya que por el momento se tomó prestado de la biblioteca de REDOX (relibc).
+
+\subsection{Arquitectura del sistema (monolítica, microkernel, etc.)}
+Theseus, como sistema operativo no tiene una arquitectura clásica como monolítica o microkernel, ni mucho menos multikernel; sino que basa su estructura en \textbf{cells} o células por su traducción en español, las cuales haciendo honor a su definición biológica, son módulos pequeños e independientes que sirven como bloque de cons-trucción para el sistema operativo. Adicionalmente, theseus tiene un componente mínimo el cual es llamado ``nano-core'', que se encarga de iniciar el sistema, establecer memoria mínima y cargar las demás células; pero a diferencia de un kernel propiamente dicho, este no es un jefe permanente, sino que cada cell es independiente \citep{boos2020theseus}. A continuación una tabla comparativa entre un kernel clásico y el nano-core de theseus:
+\begin{table}[H]
+\centering
+\caption{Comparación entre un kernel tradicional y el nanocore de Theseus}
+\label{tab:nanocore_vs_kernel}
+\begin{tabular}{|p{3cm}|p{5.5cm}|p{5.5cm}|}
+\hline
+\textbf{Aspecto} & \textbf{Kernel tradicional} & \textbf{Nanocore (Theseus)} \\ \hline
+\textbf{Definición} &
+Es el núcleo del sistema ope-rativo. Centraliza la gestión de componentes y recursos. &
+Unidad mínima del núcleo que gestiona sólo lo esencial para iniciar y mantener cells. \\ \hline
+\textbf{Estructura} &
+Monolítica o microkernel: el kernel controla los servicios del sistema. &
+No existe un ``núcleo único'': el sistema está compuesto por módulos cooperativos. \\ \hline
+\textbf{Acoplamiento} &
+Alto. Los módulos dependen del kernel y de otros subsistemas. &
+Bajo. Cada módulo es reemplazable y se comunica mediante interfaces explícitas. \\ \hline
+\textbf{Objetivo} &
+Proveer servicios centrales de manera estable. &
+Eliminar el \textit{state spill} (derrame de estado), permite reemplazar componentes en ejecución. \\ \hline
+\end{tabular}
+\centering
+\small Fuente: Adaptado en base a \citep{boos2020theseus}, \textit{Theseus: An Experiment in OS Structure for State Management}.
+\end{table}
+
+Para entenderlo mejor, se especifica que se impone una arquitectura/organización plana para estas células, todo se corre en un solo SAS (single address space) y un solo nivel de privilegio (no se diferencia entre modo usuario y modo kernel) \citep{boos2017theseus}. Además, se incluye una figura comparativa entre arquitecturas clásicas y la de theseus basada en células:
+\begin{figure}[H]
+\centering
+\includegraphics[width=1\textwidth]{figures/comparativaArquitecturaTheseus3.png}
+\centering
+\caption{Comparativa de la arquitectura de Theseus frente a arquitecturas tradicionales.}
+\label{fig:comparativaArquitecturaTheseus}
+\centering
+\small Fuente: Obtenido de \citep{theseus2023} \textit{The Theseus OS Book}.
+\end{figure}
+
+\subsection{Componentes implementados (procesos, memoria, archivos, etc.)}
+En theseus, cada cell encapsula una parte del sistema, encapsula cada componente, como gestión de memoria, planificación/Scheduling, E/S o comunicación. Este trabajo con cells permite aislar y detectar fallos, para poder reemplazar componentes en ejecución y evitar el \textit{state spill} entre módulos \citep{boos2020theseus}.
+A continuación y a modo de introducción, se presenta una tabla con los principales componentes y subsistemas de Theseus OS, los nombres de sus archivos en el repositorio oficial y la idea clave detrás de sus funcionamiento.
+\begin{table}[H]
+\centering
+\caption{Funcionamiento técnico (idea clave) de los principales subsistemas de Theseus OS}
+\begin{tabular}{|p{5cm}|p{4cm}|p{6cm}|}
+\hline
+\textbf{Componente / Sub-sistema} & \textbf{Nombre en Theseus (archivo/crate)} & \textbf{Funcionamiento técnico (idea clave)} \\ \hline
+Gestión de memoria & \texttt{memory} crate & Mapea páginas virtuales a marcos físicos garantizando exclusividad. \\ \hline
+Carga dinámica de módulos (módulos / células) & \texttt{mod\_mgmt} crate & Carga en ejecución módulos (“cells”) y gestiona sus dependencias. \\ \hline
+Scheduling / multitarea & \texttt{scheduler} / \texttt{task} crates & Ejecuta tareas en un único espacio de direcciones compartido. \\ \hline
+Manejo de archivos / sistema de archivos & \texttt{fs} crate & Gestiona operaciones de archivos, bajo la modularidad de Theseus. \\ \hline
+Subsistemas de E/S y drivers & Ej. \texttt{e1000}, \texttt{ata\_pio}, \texttt{keyboard} & Controladores modulares escritos en Rust, diseñados para reemplazo. \\ \hline
+Recuperación ante fallos / actualización en caliente & \texttt{loader}, \texttt{spawn} crates & Reemplaza módulos activos sin reiniciar el sistema completo. \\ \hline
+Comunicación entre módulos & \texttt{event\_types}, \texttt{device\_manager} crates & Mensajería sin estado entre módulos para evitar dependencias implícitas. \\ \hline
+\end{tabular}
+\centering
+Fuente: Elaboración propia con base en \citep{boos2020theseus, theseus2023, boos2017theseus}.
+\end{table}
+
+\subsubsection*{Gestión de memoria}
+El componente \texttt{memory} de Theseus implementa una idea \texttt{MappedPages}, que representa una región de páginas virtuales adyacentes, mapeadas a marcos físicos. El mapeo se realiza con la función \texttt{Mapper::map(pages, frames, flags, pg\_tbl)}, y se aprovechan las utilidades de Rust para asegurar que cada página tenga un único marco asociado \citep{boos2020theseus, theseus2023}.
+
+\subsubsection*{Carga dinámica de módulos (módulos / células)}
+El subsistema \texttt{mod\_mgmt} permite que los módulos (cells) se carguen, vinculen y descarguen en tiempo de ejecución. Para ello, se construyen instancias de \texttt{CrateNamespace}. Este subsistema nos permite sustituir un módulo (cell) sin reiniciar por completo el sistema \citep{theseus2023}.
+
+\subsubsection*{Scheduling / multitarea}
+Los crates \texttt{scheduler} y \texttt{task} gestionan las tareas en un único entorno de espacio de direcciones (SAS) y un solo nivel de privilegio (SPL). Cada tarea se encapsula mediante una estructura \texttt{Task} que contiene el contexto del CPU, el puntero de pila y el estado de ejecución. Este enfoque de unicidad evita el fenómeno del “state spill” entre módulos \citep{theseus_GitHub}.
+
+\subsubsection*{Manejo de archivos / sistema de archivos}
+El crate \texttt{fs} implementa las funciones básicas del sistema de archivos, como lectura, escritura y gestión de directorios. Siguiendo la filosofía de Theseus, este módulo se carga como una cell independiente, permitiendo su reemplazo o actualización sin necesidad de reiniciar el sistema \citep{theseus_GitHub}.
+
+\subsubsection*{Subsistemas de E/S y drivers}
+Los drivers como \texttt{e1000}, \texttt{ata\_pio} o \texttt{keyboard} escritos en Rust; gestionan hardware de red, discos PATA/IDE y teclados PS/2 respectivamente. Fiel al enfoque de Theseus, son independientes y reemplazables en tiempo de ejecución; para facilitar el “fault recovery”  \citep{theseus_GitHub}.
+
+\subsubsection*{Recuperación ante fallos / actualización en caliente}
+Los crates \texttt{loader} y \texttt{spawn} son las cells que permiten el tan aclamado “fault recovery” y “live update”; o sea recuperación ante fallos y actualización, de cells, sin reiniciar todo el sistema. El funcionamiento contiene detención de tareas, liberación de recursos y recarga de cells \citep{theseus2023}.
+
+\subsubsection*{Comunicación entre módulos}
+Los subsistemas \texttt{event\_types} y \texttt{device\_manager} se encargan de la correcta mensajería entre cells mediante canales tipados y sin depender de estado compartido. Las dependencias se definen con metadatos para eliminar el “state spill” en la comunicación entre componentes \citep{boos2017theseus}.
+
+\subsection{Herramientas utilizadas (compiladores, emuladores, etc.)}
+Theseus emplea y modifica herramientas de y para Rust; también utiliza máquinas virtuales. Las principales herramientas son las siguientes:
+\begin{itemize}
+    \item \textbf{Rust toolchain:} Uso de \texttt{cargo}, \texttt{rustc} y crates estándar del ecosistema Rust para la compilación, gestión de dependencias y construcción modular de Theseus.
+    \item \textbf{Sistema de carga dinámica y enlazado en tiempo de ejecución:} Theseus modifica el compilador (rustc) y el “linker” para permitir la carga y sustitución de (cells) en ejecución \citep{boos2017theseus}.
+    \item \textbf{Emuladores y máquinas virtuales:} Se utilizan entornos como “QEMU” para probar, depurar y validar el funcionamiento del sistema \citep{theseus_GitHub}.
+    \item \textbf{Librería estandar de C:} Actualmente, Theseus utiliza gran parte de \textbf{relibc} de Redox OS como su biblioteca estándar de C, pero planea desarrollar su propia versión llamada \textbf{tlibc} (Theseus libc) en el futuro \citep{theseus_GitHub}.
+\end{itemize}
+
+\subsection{Nivel de complejidad y accesibilidad para estudiantes}
+Considerando un entorno académico, que es justamente donde rust brilla, es un proyecto digno de estudio,
+con un altísimo nivel de complejidad debido también y en mayor medida, a su arquitectura basada en cells; también cabe mencionar que
+la dificultad sube debido al uso de la versión de la librería estandar de C (relibc) y el uso de QEMU, el cual es un emulador no tan intuitivo y del cual no hay tanta documentación en español.
+
+Sin embargo, se ve compensado debido a su alta accesibilidad, la cual es posible gracias a su extensa documentación 
+y estudios en torno a este proyecto, propiciados por el mismo creador de Theseus.  

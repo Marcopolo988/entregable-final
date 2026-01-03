@@ -1,0 +1,15 @@
+\section{RedoxOs}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{figures/RedoxOs.png}
+    \caption[Logo del sistema operativo Redox OS]%
+            {Logo del sistema operativo Redox OS \citep{WikiRedoxOS}}
+    \label{fig:sistema_operativo_redoxos}
+\end{figure}
+Redox es un sistema operativo tipo Unix que está escrito en el lenguaje de programación Rust, con el objetivo de implementar un microkernel y un sistema de aplicaciones. Rust es un lenguaje enfocado en la seguridad, rendimiento, gratuito y fácil de navegar. Redox se enfocó en la mejora de varios sistemas anteriores que presentaban errores. Uno de sus proyectos es Redox OS. Es compatible con POSIX, y la comunidad está trabajando para escribir la biblioteca libc en Rust, llamada relibc \citep{Saini2018}.
+
+Dado que para los sistemas operativos es muy importante la seguridad, porque los sistemas operativos tienen un alto nivel de abstracción sobre los recursos del sistema, más aún en el caso de que Linux tuviera muchos errores en diferentes bibliotecas ocasionados por la seguridad de memoria. Rust en cambio evita todos esos problemas al tener seguridad de memoria en tiempo de compilación. El kernel de Redox contiene más de 20 mil líneas de código, y su diseño es de alto nivel por eso aún puede tener problemas \citep{Ellmann2019}.
+
+El sistema operativo Redox OS se apoya en un microkernel y está inspirado en el sistema operativo MINIX. Las funciones tradicionales se implementan en kernels monolíticos, como controladores de dispositivo, pilas y el sistema de archivos. Los microkernels son más seguros y ofrecen mayor estabilidad, pero una de las principales desventajas es que el rendimiento que ofrecen no está optimizado para la mayoría del hardware actual \citep{Ritter2019}.
+
+En cuanto a sus componentes clave, Redox OS integra un microkernel responsable de los procesos del sistema, un \textbf{sistema de archivos} implementado en espacio de usuario, \textbf{drivers} que también se ejecutan en espacio de usuario para incrementar la estabilidad, y compatibilidad POSIX que permite correr aplicaciones de otros sistemas Unix. También, añade \textbf{la biblioteca relibc}, escrita en Rust para mejorar la seguridad y la compatibilidad, ademas de \textbf{gestión de memoria} segura que evita vulnerabilidades comunes como los desbordamientos\citep{RedoxOS_book}.

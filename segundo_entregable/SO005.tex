@@ -1,0 +1,119 @@
+\section{FlexOS}
+
+\subsection{Nombre del proyecto o sistema operativo}
+El sistema operativo analizado es ``FlexOS''.  
+Según \citep{flexos2023paper}, su nombre proviene del término “Flexible Operating System”, reflejando su principal objetivo: ofrecer una plataforma operativa flexible y configurable que permita ajustar dinámicamente el nivel de aislamiento entre componentes.  
+A diferencia de los sistemas tradicionales con arquitecturas rígidas (monolíticas o microkernel), FlexOS propone una arquitectura adaptable donde el desarrollador puede equilibrar seguridad, aislamiento y rendimiento según las necesidades del sistema.
+
+\subsection{Enlace al repositorio y/o documentación oficial}
+\begin{itemize}
+    \item \textbf{Repositorio oficial:} \url{https://github.com/project-flexos}
+    \item \textbf{Sitio y documentación técnica:} \url{https://project-flexos.github.io/}
+    \item \textbf{Publicación principal:} \textit{“FlexOS: Making OS Isolation Flexible”}, presentada en EuroSys 2023 \citep{flexos2023paper}.
+\end{itemize}
+
+\subsection{Objetivo del proyecto}
+El objetivo central de FlexOS (educativo, experimental) es redefinir el equilibrio entre rendimiento y aislamiento en los sistemas operativos.  
+Mientras los sistemas tradicionales deben optar entre un kernel monolítico rápido o un microkernel seguro pero más costoso en rendimiento, FlexOS permite ajustar el nivel de aislamiento de manera configurable.  
+Esto se logra mediante su diseño modular, que permite que cada componente (como controladores, memoria o IPC) se ejecute con distintos niveles de separación temporal y espacial.  
+De esta forma, se busca proporcionar un entorno operativo capaz de adaptarse a distintos contextos: desde sistemas embebidos con recursos limitados, hasta entornos de alta seguridad o investigación académica \citep{flexos2023paper}.
+
+\subsection{Lenguaje(s) de implementación}
+FlexOS está implementado principalmente en C y C++, con soporte parcial en Rust para módulos experimentales que requieren mayor seguridad en memoria.  
+Su infraestructura está construida sobre el microkernel Unikraft, al que extiende con nuevas bibliotecas y mecanismos de aislamiento.  
+La elección de C y C++ permite mantener compatibilidad con Unikraft y con componentes de sistemas POSIX existentes, mientras que Rust se emplea en zonas críticas de seguridad o donde la verificación de memoria resulta esencial \citep{flexos2023paper}.
+
+\subsection{Arquitectura del sistema}
+FlexOS presenta una arquitectura modular y configurable, inspirada en los principios de los microkernels, pero con un grado de flexibilidad superior.  
+Cada componente puede ejecutarse en un dominio de aislamiento, que define si comparte espacio de direcciones, hilos de ejecución o recursos temporales con otros módulos \citep{flexos2023paper}.  
+Estos dominios pueden configurarse de tres maneras principales:
+
+El núcleo de FlexOS gestiona la coordinación de estos dominios, la planificación del tiempo de CPU, la comunicación entre módulos (IPC) y el control de errores.  
+\begin{figure}[H]
+\centering
+\includegraphics[width=1\textwidth]{figures/aflexos.png}
+\centering
+\caption{Arquitectura modular e híbrida de FlexOS.}
+\label{fig:flexos_architecture}
+\centering
+\small Fuente: Obtenido de \citep{flexos2023paper}.
+\end{figure}
+
+
+\subsection{Componentes implementados}
+
+En FlexOS, los componentes del sistema se diseñan para maximizar el aislamiento y la modularidad, aplicando principios de sistemas operativos seguros y configurables.  
+Su estructura permite ajustar el nivel de aislamiento (temporal y espacial) entre componentes según los requisitos de rendimiento o seguridad, convirtiéndolo en un sistema operativo híbrido altamente flexible.
+
+Los componentes se implementan principalmente en C, C++ y Rust, utilizando microbibliotecas y servicios del kernel configurables.  
+A continuación, se presenta una tabla con los principales subsistemas y módulos de FlexOS, junto con su función técnica principal \citep{flexos2023paper}.
+
+\begin{table}[H]
+\centering
+\caption{Funcionamiento técnico de los principales subsistemas de FlexOS}
+\begin{tabular}{|p{5cm}|p{4cm}|p{6cm}|}
+\hline
+\textbf{Componente / Sub-sistema} & \textbf{Nombre o módulo en FlexOS} & \textbf{Funcionamiento técnico (idea clave)} \\ \hline
+Núcleo y planificación & \texttt{flex\_kernel} & Controla la ejecución y distribución del tiempo de CPU entre tareas. \\ \hline
+Gestión de memoria & \texttt{mem\_mgr}, \texttt{isolation\_lib} & Maneja memoria virtual y niveles configurables de aislamiento. \\ \hline
+Procesos y tareas & \texttt{task\_mgr} & Crea y coordina tareas con comunicación segura. \\ \hline
+Sistema de IPC & \texttt{ipc\_core}, \texttt{shared\_mem} & Permite intercambio de datos mediante colas y memoria compartida. \\ \hline
+Seguridad y aislamiento & \texttt{sandbox}, \texttt{trusted\_domain} & Define dominios seguros y políticas de acceso. \\ \hline
+Gestión de E/S y drivers & \texttt{io\_layer}, \texttt{device\_mgr} & Ejecuta controladores aislados para proteger el kernel. \\ \hline
+Monitoreo y fallos & \texttt{fault\_handler}, \texttt{recovery\_svc} & Detecta errores y reinicia módulos sin afectar el sistema. \\ \hline
+Configuración del sistema & \texttt{flex\_config} & Ajusta el nivel de aislamiento y rendimiento. \\ \hline
+Bibliotecas de usuario & \texttt{libflex}, \texttt{api\_runtime} & Facilita la comunicación segura con el kernel. \\ \hline
+\end{tabular}
+\centering
+Fuente: Elaboración propia con base en \citep{flexos2023paper}.
+\end{table}
+
+
+\subsubsection*{Gestión de memoria}
+FlexOS implementa un modelo de gestión de memoria basado en \textit{espacial isolation}, donde cada dominio o componente puede tener su propio espacio de direcciones.  
+El sistema utiliza tanto protección por hardware (MMU) como políticas de software para garantizar independencia entre procesos y minimizar los efectos de fallos de memoria.
+
+\subsubsection*{Procesos y multitarea}
+El administrador de tareas controla el ciclo de vida de los procesos mediante colas de ejecución.  
+Los procesos pueden compartir recursos limitadamente o ejecutarse en dominios completamente aislados, dependiendo de la configuración elegida.
+
+\subsubsection*{Comunicación entre módulos}
+FlexOS utiliza un sistema híbrido de comunicación: colas seguras, llamadas IPC síncronas y memoria compartida protegida.  
+Esto permite un equilibrio entre rendimiento y seguridad, ajustable según la política de aislamiento establecida.
+
+\subsubsection*{Gestión de E/S y drivers}
+Los controladores en FlexOS se ejecutan como módulos independientes o en dominios restringidos, minimizando el riesgo de fallos.  
+Cada driver puede ser reiniciado o reemplazado sin afectar el núcleo principal.
+
+\subsubsection*{Seguridad y aislamiento}
+Una de las características clave del sistema es su capacidad para reconfigurar el aislamiento entre componentes, ofreciendo niveles ajustables de separación espacial y temporal.  
+Esto permite ejecutar aplicaciones críticas en entornos seguros sin comprometer el rendimiento global del sistema.
+
+
+\subsection{Herramientas utilizadas (compiladores, emuladores, etc.)}
+
+FlexOS se construye sobre la infraestructura de \textbf{Unikraft}, por lo que emplea un conjunto de herramientas especializadas para la compilación, configuración y ejecución de sus módulos.  
+El proceso de construcción del sistema operativo se basa en la cadena de herramientas de \texttt{GNU Make} y \texttt{Kconfig}, lo que permite personalizar la inclusión o exclusión de componentes del kernel según el nivel de aislamiento deseado.  
+
+Entre las herramientas más relevantes utilizadas en FlexOS se encuentran:
+
+\begin{itemize}
+    \item \textbf{Compilador principal:} \texttt{clang/LLVM}, utilizado para la instrumentación del código, generación de binarios seguros y soporte para aislamiento entre dominios.
+    \item \textbf{Infraestructura de construcción:} \texttt{Unikraft Build System}, que proporciona un entorno modular basado en \texttt{KBuild} y \texttt{Makefiles} para definir configuraciones del kernel y librerías.
+    \item \textbf{Simuladores y entornos de prueba:} ejecución de instancias de FlexOS sobre \texttt{QEMU} y máquinas virtuales \texttt{KVM}, permitiendo validar configuraciones con diferentes niveles de aislamiento y medir overheads de seguridad.
+    \item \textbf{Instrumentación y análisis:} uso de \texttt{AddressSanitizer (ASan)}, \texttt{Clang Control Flow Integrity (CFI)} y trazadores de rendimiento para detectar vulnerabilidades y medir costos de comunicación entre dominios.
+    \item \textbf{Herramientas de fuzzing y validación:} integración con \texttt{ConfFuzz}, el framework de fuzzing desarrollado por los mismos autores, usado para explorar automáticamente configuraciones de aislamiento y detectar fallos en el espacio de diseño.
+\end{itemize}
+
+\subsection{Nivel de complejidad y accesibilidad para estudiantes}
+
+FlexOS presenta un nivel de complejidad intermedio a avanzado, dado su enfoque experimental y su dependencia de la infraestructura de Unikraft y del compilador LLVM.  
+Aunque está diseñado como un sistema de investigación y enseñanza sobre \textit{microkernels híbridos y aislamiento flexible}, su curva de aprendizaje es considerablemente mayor que la de sistemas educativos tradicionales como XV6 o MINIX.
+
+Su accesibilidad depende del objetivo académico:
+
+\begin{itemize}
+    \item Para estudiantes de pregrado, el entorno de FlexOS puede resultar complejo por su uso intensivo de compilación cruzada, configuración Kconfig y dependencias de LLVM, pero es útil para entender conceptos de modularidad y aislamiento.
+    \item Para estudiantes de posgrado o investigadores, ofrece un entorno ideal para estudiar la relación entre \textit{rendimiento y seguridad}, mediante experimentación con distintos niveles de compartmentalización, IPC y aislamiento de memoria.
+\end{itemize}
+

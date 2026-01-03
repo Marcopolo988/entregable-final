@@ -1,0 +1,112 @@
+\section{freeRTOS}
+
+\subsection{Nombre del proyecto o sistema operativo}
+FreeRTOS — Kernel de tiempo real (RTOS) de código abierto orientado a microcontroladores y microprocesadores de recursos limitados. Su historia y mantenimiento han estado ligados a Richard Barry / Real Time Engineers Ltd., y desde 2017/2018 AWS mantiene y distribuye componentes y bibliotecas asociadas (Amazon FreeRTOS/AWS FreeRTOS). \citep{wikipedia-FreeRTOS}
+sistema operativo en tiempo real basado en UNIX, diseñado para ser pequeño y eficiente, ideal para sistemas embebidos y dispositivos con recursos limitados.
+\subsection{Enlace al repositorio y/o documentación oficial}
+\begin{itemize}
+    \item \textbf{Pagina oficial:} \url{https://www.freertos.org/?}
+    \item \textbf{Enlace al repositorio oficial:} \url{https://github.com/FreeRTOS/FreeRTOS?}
+    \item \textbf{Enlace al libro oficial:} \url{https://www.freertos.org/media/2018/161204_Mastering_the_FreeRTOS_Real_Time_Kernel-A_Hands-On_Tutorial_Guide.pdf?}
+\end{itemize}
+
+\subsection{Objetivo del proyecto }
+FreeRTOS es un sistema operativo de tiempo real (RTOS) de código abierto, diseñado para ser ligero y portable en microcontroladores. Su kernel provee planificación de tareas, comunicación y temporizadores para sistemas embebidos. Además de su uso industrial, es una herramienta educativa y experimental fundamental. Permite aprender y experimentar con conceptos de sistemas en tiempo real de manera práctica.
+\citep[pag. 19]{freertos_teaching}
+
+\subsection{Lenguaje(s) de implementación}
+El núcleo de FreeRTOS está escrito principalmente en C (para facilitar portabilidad) con pequeñas partes en ensamblador según la arquitectura (rutinas de cambio de contexto)\citep{wikipedia-FreeRTOS}, 
+
+\subsection{Arquitectura del sistema (monolítica, microkernel, etc.)}
+\begin{itemize}
+    \item FreeRTOS tiene una arquitectura de tipo \textbf{microkernel}, es decir, el núcleo es muy reducido y solo gestiona lo esencial (planificación de tareas, comunicación entre procesos y gestión de memoria).
+    
+    \item El sistema se organiza en \textbf{capas}:
+    \begin{itemize}
+        \item Una capa independiente de hardware (código común para todas las arquitecturas)
+        \item Una capa dependiente de hardware (abstracción para cada CPU/compilador)
+        \item Por encima de ellas el código de usuario (tareas e ISRs)
+    \end{itemize}
+\end{itemize}
+\citep[pag. 38-40]{aosa-freertos}
+la siguiente figura muestra las capas de sofware: \ref{fig:freertos-architecture}.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\textwidth]{figures/freertos-architecture.png}
+\centering
+\caption{Capas de FreeRTOS (usuario/ISRs, núcleo independiente de HW, capa dependiente de HW, hardware)}
+\label{fig:freertos-architecture}
+\centering
+\small Fuente: Obtenido de \citep[pag. 40]{aosa-freertos} \textit{The Architecture of Open Source Applications, Volume II}.
+\end{figure}
+
+
+\subsection{Componentes implementados (procesos, memoria, archivos, etc.)}
+FreeRTOS es un RTOS minimalista, por lo que implementa principalmente:
+\newpage
+\begin{table}[H]
+\centering
+\caption{Componentes principales de FreeRTOS}
+\begin{tabular}{|p{0.25\textwidth}|p{0.2\textwidth}|p{0.45\textwidth}|}
+\hline
+\textbf{Componente / Sub-sistema} & \textbf{Nombre en FreeRTOS} & \textbf{Funcionamiento técnico (idea clave)} \\
+\hline
+Gestión de tareas (threads) & tasks.c, list.c & Creación y planificación de tareas con prioridades preemptivas. Manejo de cambio de contexto en cada tick del sistema. \\
+\hline
+Comunicación / sincronización & queue.c, queue.h & Colas de mensajes FIFO, semáforos binarios y mutexes para sincronizar tareas/ISRs. \\
+\hline
+Temporización & timers.c & Temporizadores por software (delay, callbacks periódicos) con tarea de servicio propio. Tick del sistema configurable (10-1000 Hz). \\
+\hline
+Gestión de memoria & heap\_1.c a heap\_5.c & Múltiples esquemas de heap para asignación dinámica. Sin memoria virtual ni paginación. \\
+\hline
+Interrupciones & port*.c & Mínimo soporte en núcleo: tick del hardware y enmascaramiento de interrupciones críticas. APIs especiales para ISRs. \\
+\hline
+Eventos y temporales avanzados & event\_groups.c & Grupos de flags (eventos) para sincronización múltiple entre tareas. \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection*{Gestión de tareas}
+Las tareas son las unidades básicas de ejecución en FreeRTOS, gestionadas por el planificador del sistema. Cada una posee su propia pila (\textit{stack}) y estructura de control (TCB). Se crean mediante \texttt{xTaskCreate()} y se sincronizan usando los mecanismos del kernel.\citep{freertos-book}
+
+\subsubsection*{Comunicación / sincronización}
+FreeRTOS proporciona diversos mecanismos para la coordinación entre tareas e interrupciones. Entre estos se incluyen colas (\texttt{xQueueSend}/\texttt{xQueueReceive}), semáforos (binarios y de contaje), mutexes y grupos de eventos. Estas primitivas constituyen la base fundamental para la comunicación y sincronización dentro del sistema.\citep{freertos-book}
+
+\subsubsection*{Temporización}
+FreeRTOS incorpora temporizadores software que permiten programar la ejecución de funciones callback después de un intervalo específico o de forma periódica. Estos timers son gestionados a través de una API especializada que facilita la implementación de acciones temporizadas dentro de las aplicaciones.\citep{freertos-book}
+
+\subsubsection*{Gestión de memoria}
+FreeRTOS dispone de cinco implementaciones de memoria dinámica (\texttt{heap\_1} a \texttt{heap\_5}) con diferentes estrategias de asignación. Estas van desde métodos básicos hasta esquemas avanzados que gestionan la fragmentación. La selección permite adaptarse a los requerimientos específicos de cada aplicación embebida.\citep{freertos-book}
+
+\subsubsection*{Interrupciones}
+FreeRTOS gestiona las interrupciones mediante archivos \texttt{port*.c} con soporte mínimo en el núcleo. Se encarga del tick del sistema y del enmascaramiento de interrupciones críticas. Proporciona APIs específicas para una comunicación segura entre las ISRs y las tareas.\citep{freertos-book}
+
+\subsubsection*{Eventos y temporales avanzados}
+La gestión de eventos avanzados se realiza mediante \texttt{event\_groups.c}, que implementa grupos de flags para sincronización múltiple entre tareas. Este mecanismo permite que varias tareas esperen o señalen múltiples condiciones de forma eficiente, facilitando la coordinación de operaciones complejas en el sistema.
+
+\subsection{Herramientas utilizadas (compiladores, emuladores, etc.)}
+\subsubsection*{Compiladores}
+FreeRTOS soporta prácticamente cualquier herramienta estándar del ecosistema embebido:
+\begin{itemize}
+    \item GCC (\texttt{arm-none-eabi-gcc}, AVR-GCC)
+    \item IAR Embedded Workbench
+    \item Keil uVision (ARMCC)
+    \item CodeWarrior
+    \item Microchip XC
+\end{itemize}
+En general, se utiliza el \textit{toolchain} propio de la plataforma objetivo.
+
+\subsubsection*{Simuladores y Emuladores}
+\begin{itemize}
+    \item Puertos para Windows (Visual C++) y POSIX (Linux) que permiten ejecutar aplicaciones FreeRTOS en simulación.
+    \item Demos en QEMU para varias arquitecturas (ARM, RISC-V, etc.).
+    \item Demos preconfiguradas para placas reales (STM32, ESP32, etc.).
+\end{itemize}
+\citep[pag. 40--41]{aosa-freertos}.
+
+\subsection{Nivel de complejidad y accesibilidad para estudiantes}
+FreeRTOS posee un kernel minimalista que facilita su aprendizaje inicial al ser más simple que sistemas como Linux. Sin embargo, su uso efectivo como sistema de tiempo real exige dominio de programación en C y arquitectura de microcontroladores para manejar concurrencia e interrupciones.
+
+El proyecto ofrece documentación extensa y ejemplos prácticos como "blinky" que facilitan el aprendizaje. 
+Es adecuado para estudiantes avanzados con bases en sistemas embebidos, aunque dominar sus conceptos 
+avanzados representa un desafío formativo significativo. \citep{freertos_teaching}.

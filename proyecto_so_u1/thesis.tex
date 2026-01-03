@@ -1,0 +1,89 @@
+\documentclass[letterpaper,12pt]{report}
+\usepackage{thesis}
+\usepackage{float}
+\usepackage[hyphens]{url}            % para partir URLs largas
+\usepackage{graphicx}
+\usepackage{latexsym}
+\usepackage{rotating}
+\usepackage{natbib} 
+\usepackage[expansion=false]{microtype}
+\usepackage{array}
+\usepackage{tabularx}                 
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black]{hyperref} % cargar al final si no hay paquetes muy especiales
+% Cambiar nombres de capítulos y secciones al español
+\renewcommand{\chaptername}{Capítulo}
+\renewcommand{\contentsname}{Índice general}
+\renewcommand{\listfigurename}{Índice de figuras}
+\renewcommand{\listtablename}{Índice de tablas}
+\renewcommand{\bibname}{Bibliografía}
+\renewcommand{\appendixname}{Apéndice}
+\renewcommand{\figurename}{Figura}
+\renewcommand{\tablename}{Tabla}
+\renewcommand{\abstractname}{Resumen}
+\renewcommand{\indexname}{Índice alfabético}
+\renewcommand{\partname}{Parte}
+\renewcommand{\bibname}{Referencias}
+\renewcommand{\refname}{Referencias}
+
+
+
+\begin{document}
+
+\pagenumbering{roman}
+
+% Fill in the title, author, degree name, department, and month/year.
+% Upon completion, this should look like the following:
+%\thesistitle
+%	{Complicated and Important-Sounding Thesis Title}
+%	{John P. Doe}
+%	{Master of Science}
+%	{Department of Computer Science}
+%	{May 2009}
+% The \thesistitle definition is in thesis.sty.  Other customizations
+% can be made there.
+
+\thesistitle
+    {Proyecto de Curso: \\ 
+     Análisis, Diseño y Construcción de un Sistema Operativo desde Cero}
+    {Castro Pari, Rayneld Fidel \\ 
+     Mamani Flores, Natan \\ 
+     Mendoza Quispe, Jose Daniel \\ 
+     Polo Chura, Marco Rosauro}
+    {Ingeniería de Informatica y Sistemas}
+    {Departamento Académico de Ingeniería de Informatica y de Sistemas \\ 
+     Asesor: Ugarte Rojas, Héctor Eduardo}
+    {Semestre 2025-II}
+\include{abstract}
+%\include{ack}
+\include{contents}
+\include{tables}
+\include{figures}
+
+\pagenumbering{arabic}
+\include{introduccion}
+\include{capitulo01}
+\include{subcapitulo01_01}
+\include{subcapitulo01_02}
+\include{subcapitulo01_03}
+\include{subcapitulo01_04}
+\include{capitulo02}
+\include{SO01}
+\include{SO02}
+\include{SO03}
+\include{SO04}
+\include{SO05}
+\include{SO06}
+\include{SO07}
+\include{SO08}
+\include{SO09}
+\include{SO10}
+\include{capitulo03}
+
+%\printbibliography
+\include{bib}
+% If you have no appendices, remove the following two lines.
+% If you have more appdences, add them as necessary.
+%\appendix
+%\include{apdxa}
+
+\end{document}

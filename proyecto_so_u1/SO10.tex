@@ -1,0 +1,17 @@
+\section{ToaruOS}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{figures/logoToaruOS.png}
+    \caption[Ícono de ToaruOS]
+            {Ícono de ToaruOS \citep{toaruoslogo2025}}
+    \label{fig:ToaruOS}
+\end{figure}
+
+ToaruOS es un sistema operativo experimental creado en 2010 por Kevin Lange con fines educativos, que busca demostrar cómo se puede construir un entorno completo desde cero, sin depender de kernels o librerías existentes. Su propósito inicial fue servir como plataforma de investigación y aprendizaje para comprender la estructura y funcionamiento interno de un sistema operativo moderno, incluyendo subsistemas gráficos, de red y de usuario. A diferencia de proyectos como Linux o BSD, ToaruOS no busca ser un sistema de producción, sino un entorno accesible para la enseñanza y la experimentación \citep{toaruos2025}.
+
+La arquitectura de ToaruOS es monolítica. Esto significa que el kernel incluye directamente los módulos principales del sistema, como la gestión de memoria, procesos, controladores de dispositivos y el sistema de archivos. Este diseño facilita la integración y el rendimiento en un entorno experimental, aunque reduce la modularidad en comparación con un microkernel. El lenguaje de implementación es C, con porciones menores en ensamblador para interacciones de bajo nivel con el hardware y el arranque \citep{toaruos2025}.
+
+Los componentes clave del sistema abarcan los elementos básicos de cualquier sistema operativo contemporáneo. Para la gestión de procesos implementa multitarea con planificación basada en prioridades, además de soportar hilos ligeros. En la gestión de memoria incluye paginación, segmentación y asignación dinámica de memoria para los programas de usuario. En cuanto al sistema de archivos, dispone de su propia implementación denominada tmpfs para sistemas en memoria, además de compatibilidad con EXT2 en versiones más recientes. Adicionalmente, cuenta con un sistema gráfico completo compuesto por un servidor de ventanas (Toaru Window Server), un gestor de ventanas y librerías gráficas que permiten ejecutar aplicaciones con interfaces gráficas, como un editor de texto o un navegador web básico \citep{toaruos2025}.
+
+La comunidad de ToaruOS es pequeña en comparación con otros proyectos de código abierto, pero se mantiene activa en torno a su repositorio en GitHub, donde se documentan los cambios y se comparten implementaciones experimentales. La documentación disponible proviene principalmente de su creador, quien mantiene guías, artículos técnicos y un blog explicativo sobre su evolución. Aunque no existe una gran cantidad de artículos científicos dedicados exclusivamente a ToaruOS, sí se encuentra mencionado en literatura académica y trabajos relacionados con sistemas operativos experimentales, donde se lo reconoce como un ejemplo de diseño desde cero y un recurso educativo para la comprensión de los fundamentos de la computación de sistemas.

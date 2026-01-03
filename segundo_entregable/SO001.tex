@@ -1,0 +1,82 @@
+\section{MINIX}
+
+\subsection{Nombre del proyecto o sistema operativo}
+El nombre del proyecto desarrollado por Andrew S. Tanenbaum es \textbf{MINIX}. Según \citep{tanenbaum2006}, este nombre es un acrónimo de \emph{mini-UNIX},
+su propósito fue ser una versión educativa y simplificada del sistema UNIX, diseñada para facilitar el aprendizaje de los principios fundamentales
+de los sistemas operativos. Este sistema se inspiro se inspiró en la UNIX Version 7 y con el tiempo fue mejorado para ajustarse al estándar internacional POSIX.
+\subsection{Enlace al repositorio y/o documentación oficial}
+\begin{itemize}
+    \item \textbf{Pagina oficial:} \url{https://www.minix3.org}
+    \item \textbf{Enlace al repositorio oficial:} \url{https://github.com/Stichting-MINIX-Research-Foundation/minix}
+    \item \textbf{Enlace al libro oficial:} \url{https://csc-knu.github.io/sys-prog/books/Andrew%20S.%20Tanenbaum%20-%20Operating%20Systems.%20Design%20and%20Implementation.pdf}
+\end{itemize}
+
+\subsection{Objetivo del proyecto}
+Segun \citep{tanenbaum2006}, este sistema operativo MINIX fue diseñado para ser un sistema operativo con fines educativos. Su propósito es ser como una herramienta de laboratorio 
+para enseñar los conceptos fundamentales como: procesos, comunicación entre procesos, semáforos, monitores, paso de mensajes, algoritmos de programación, entrada/salida, interbloqueos, controladores de dispositivos, gestión de memoria, algoritmos de paginación, diseño de sistemas de archivos, seguridad y mecanismos de protección.
+MINIX generalmente se centra en lo teórico y lo practico es por ese motivos que fue uno de lo mejores sistemas operativos para aprender sobre sistemas operativos.
+
+\subsection{Lenguaje(s) de implementación}
+Segun \citep{tanenbaum2006}, MINIX fue implementado principalmente en el lenguaje de programación C, lo cual es típico para sistemas operativos debido a la conexión cercana con el hardware y la facilidad
+para escribir código. Durante años, algunas partes del código también han sido implementadas en ensamblador para aprovechar características específicas del 
+hardware. En la version de MINIX 3, tan solamente consta de 40000 lineas de código ejecutables, que lo hacen mas fácil de entender y realizar modificaciones en el sistema operativo.
+
+\subsection{Arquitectura del sistema (monolítica, microkernel, etc.)}
+En el MINIX 3 se usa una arquitectura de microkernel, lo que nos dice que el núcleo o kernel se encarga de funciones mas básicas de sistema. como por ejemplo la planificación de procesos, comunicación, el manejo del hardware. Para poder entender mejor como es la arquitectura de MINIX 3, se muestra la siguiente figura \ref{fig:ArquitecturaMINIX3}.
+\begin{figure}[H]
+\centering
+\includegraphics[width=1\textwidth]{figures/ArquitecturaMINIX3.png}
+\centering
+\caption{Arquitectura de MINIX 3.}
+\label{fig:ArquitecturaMINIX3}
+\centering
+\small Fuente: Obtenido de \citep[pag. 113]{tanenbaum2006} \textit{OPERATING SYSTEMS DESIGN AND IMPLEMENTACIÓN}.
+\end{figure}
+
+
+\subsection{Componentes implementados (procesos, memoria, archivos, etc.)}
+MINIX está diseñado para ser modular, donde cada servicio (como la gestión de archivos, la planificación de procesos y los controladores de dispositivos). En resumen podemos ver en la tabla \ref{fig:TablaMINIX3} los principales subsistemas y su funcionamiento técnico.
+
+\begin{table}[H]
+\centering
+\caption{Funcionamiento técnico de los principales subsistemas de MINIX 3}
+\begin{tabular}{|p{5cm}|p{4cm}|p{6cm}|}
+\hline
+\textbf{Componente / Sub-sistema} & \textbf{Nombre en MINIX (archivo)} & \textbf{Funcionamiento técnico (idea clave)} \\ \hline
+Sistema de archivos & \texttt{fs/} & Gestiona la estructura de directorios y el montaje de dispositivos mediante \texttt{mount}. \\ \hline
+Archivos especiales & \texttt{/dev/} & Representan dispositivos como archivos de bloque o carácter. \\ \hline
+Tuberías (pipes) & \texttt{pipe.c} & Permiten comunicación entre procesos mediante pseudoarchivos. \\ \hline
+Shell (intérprete de comandos) & \texttt{sh/} & Ejecuta programas, redirige E/S y permite multitarea con \texttt{\&}. \\ \hline
+Llamadas al sistema & \texttt{syscall.c} & Interfaz entre programas y el sistema operativo. \\ \hline
+Comunicación entre procesos & \texttt{ipc.c} & Controla el intercambio seguro de mensajes entre procesos. \\ \hline
+\end{tabular}
+\label{fig:TablaMINIX3}
+\centering
+Fuente: Elaboración propia con base en \citep[pag. 20--42]{tanenbaum2006}.
+\end{table}
+\subsubsection*{Sistema de archivos}
+Gestiona la estructura jerárquica de archivos. Permite montar diferentes dispositivos (como CD-ROM, discos duros, disco solido, memoria flash y entre otros) en un único árbol de directorios mediante la llamada \texttt{mount}. Su trabajo es administra rutas, directorios y accesos sin depender del dispositivo.
+\subsubsection*{Archivos especiales}
+ Modelan los dispositivos físicos como archivos. Los archivos de bloque permiten acceder a unidades de disco por bloques, mientras que los de carácter representan flujos continuos (impresoras, módems y todo dispositivos de entrada y salida). Con la finalidad de permitir operar los dispositivos usando las mismas llamadas que para archivos comunes.
+\subsubsection*{Tuberías}
+Implementan la comunicación entre procesos mediante código en  pseudoarchivos. Un proceso escribe en la tubería y otro lee, logrando sincronización y transferencia de datos sin necesidad de archivos temporales. Base del uso de tuberías en el shell.
+\subsubsection*{Shell}
+Proporciona la interfaz principal con el usuario. Tiene como objetivo ejecuta programas, redirige entradas y salidas, conecta procesos con tuberías y permite tareas en segundo plano. Utiliza intensivamente las llamadas al sistema del núcleo.
+\subsubsection*{Llamadas al sistema}
+ Contiene la interfaz entre los programas de usuario y el sistema operativo. Incluyen operaciones para manejo de procesos y archivos. En MINIX 3, la mayoría de las llamadas siguen el estándar POSIX.
+\subsubsection*{Comunicación entre procesos}
+Gestiona el intercambio de mensajes entre procesos del sistema y el microkernel. Esta arquitectura refuerza el aislamiento y la estabilidad, ya que los servicios del sistema operan como procesos independientes que se comunican de forma controlada.
+
+\subsection{Herramientas utilizadas (compiladores, emuladores, etc.)}
+MINIX acepta varios lengujes de programación y compliladores, lo que facilita  el desarrollo de software de usuario como compilaciones con el propio sistema operativo. \citep{minix_wiki_features}
+\begin{itemize}
+    \item \textbf{Lenguajes:} Incluyes soporte para varios lenguajes como C/C++, clisp(LISP), mawk(AWK), Perl, Python y otros. 
+    \item \textbf{Compiladores:} Utiliza el famoso gcc (GNU Compiler Collection) y clang/LLVM como compiladores. Ambos permiten al compilacion nativa.
+    \item \textbf{Arquitectura compatibles:} Esta diseñado para procesadores x86, ARM y RISC-V.
+    \item \textbf{Emuladores:} MINIX puede ejecutarse en emuladores populares como QEMU, VirtualBox y Bochs, lo que facilita su uso en diferentes entornos de desarrollo.
+    \item \textbf{Paquetes:} Tiene una amplia variedad de programas, con mas de 4000 paquetes disponibles, las cuales son Shells, editores de texto, juegos, correos electrónicos.
+\end{itemize}
+
+\subsection{Nivel de complejidad y accesibilidad para estudiantes}
+Según \citep[pag. 17]{tanenbaum2006}, MINIX 3 está especialmente enfocado en PCs más pequeños como los que se encuentran comúnmente en países en desarrollo y en sistemas integrados, que siempre tienen recursos limitados. En cualquier caso, este diseño facilita mucho a los estudiantes aprender cómo funciona un sistema operativo que intentar estudiar un sistema monolítico enorme.
+Por su reducido tamaño y diseño del micronucleo y su documentación, resulta facil de entender para personas que deseen instalar un sistema compatible con UNIX en sus maquinas personal \citep{wikipedia_minix_es}.

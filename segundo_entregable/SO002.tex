@@ -1,0 +1,139 @@
+\section{XV6}
+
+\subsection{Nombre del proyecto o sistema operativo}
+El sistema operativo xv6 es una versión moderna y simplificada del Unix Sexta Edición (V6), creada con fines educativos. Fue desarrollado por el MIT en 2006 para el curso de Engineering Operating Systems (6.828) \citep{xv6_book}, con el objetivo de ofrecer una herramienta didáctica más accesible y actual que el Unix original, el cual estaba escrito en un dialecto antiguo de C (pre-ANSI). Esta reimplementación mantiene la esencia y estructura del Unix clásico, pero utiliza un código más claro y compatible con los entornos de aprendizaje contemporáneos.
+\subsection{Enlace al repositorio y/o documentación oficial}
+\begin{itemize}
+    \item \textbf{Pagina oficial:} \url{https://pdos.csail.mit.edu/6.828/2018/xv6.html}
+    \item \textbf{Enlace al repositorio oficial:}  \url {https://github.com/mit-pdos/xv6-public}
+    \item \textbf{Enlace al libro oficial:}  \url {https://pdos.csail.mit.edu/6.828/2018/xv6/book-rev10.pdf}
+\end{itemize}
+
+\subsection{Objetivo del proyecto}
+El propósito principal de xv6 es educativo y experimental. Fue diseñado para funcionar como un kernel de estudio que permita a los estudiantes comprender los principios fundamentales de Unix dentro de un curso semestral \citep{wikipedia-xv6}. A diferencia de sistemas operativos más complejos como Linux o BSD, xv6 mantiene una estructura lo bastante simple como para ser analizada y entendida en su totalidad durante una asignatura, pero al mismo tiempo conserva los componentes esenciales y la lógica interna de un sistema Unix real. 
+
+\subsection{Lenguaje(s) de implementación}
+El núcleo de xv6 está escrito principalmente en ANSI C, con pequeñas porciones en lenguaje ensamblador (por ejemplo, para rutinas de arranque y manejo de interrupciones) \citep[pag. 7 ]{xv6_book},. La versión original de x86 es C (para x86-32); la versión reciente soporta RISC-V también escrita en C 
+
+\subsection{Arquitectura del sistema (monolítica, microkernel, etc.)}
+Como explica la documentación, xv6 es un kernel monolítico: toda la funcionalidad del sistema corre con privilegios de kernel, sin servidores externos \citep[pag. 25 ]{xv6_book}.
+En Xv6, el kernel sigue el diseño clásico de los sistemas Unix. Funciona como un núcleo único que brinda servicios a múltiples procesos, los cuales se ejecutan en un espacio de usuario independiente.
+Cada proceso va alternando entre dos modos de ejecución:
+\begin{itemize}
+    \item \textbf{En el modo usuario:} el proceso ejecuta su propio código y realiza operaciones computacionales básicas.
+    \item \textbf{En el modo kernel:} es el sistema operativo quien toma el control para ejecutar las llamadas al sistema solicitadas.
+\end{itemize}
+Este cambio ocurre cuando un proceso necesita un servicio del sistema operativo: el hardware cambia automáticamente a un modo de mayor privilegio (modo supervisor) y transfiere la ejecución al kernel. Una vez que este completa la tarea, devuelve el control al proceso en el espacio de usuario. \citep[pag. 9]{xv6_book},
+
+\subsection{Componentes implementados (procesos, memoria, archivos, etc.)}
+Xv6 implementa los componentes esenciales de un sistema operativo Unix clásico:
+\begin{table}[H]
+\centering
+\caption{Componentes principales del sistema operativo \textbf{XV6}}
+\label{tab:xv6-componentes}
+\begin{tabular}{|p{4cm}|p{4cm}|p{7cm}|}
+\hline
+\textbf{Componente / Subsistema} & \textbf{Archivo(s) principal(es)} & \textbf{Funcionamiento técnico (idea clave)} \\ \hline
+Gestión de procesos y planificador & \texttt{proc.c}, \texttt{proc.h} & Define la estructura \texttt{proc} y el planificador round-robin por CPU; maneja el ciclo de vida de procesos (\texttt{fork}, \texttt{exec}, \texttt{exit}, \texttt{wait}). \\ \hline
+Gestión de memoria virtual & \texttt{vm.c}, \texttt{kalloc.c} & Implementa tablas de páginas por proceso (Sv39) y asignador físico mediante \texttt{kalloc/kfree}. \\ \hline
+Sistema de archivos & \texttt{fs.c}, \texttt{file.c}, \texttt{log.c} & FS tipo Unix con \texttt{inode}, directorios, caché de bloques y journaling mediante write-ahead log. \\ \hline
+Interfaz de llamadas (\texttt{syscalls}) & \texttt{syscall.c}, \texttt{sysproc.c}, \texttt{usys.S} & Tabla de \texttt{syscalls} y despacho de traps del modo usuario al kernel (\texttt{fork}, \texttt{read}, \texttt{write}, etc.). \\ \hline
+subsistemas de E/S y drivers & \texttt{console.c}, \texttt{uart.c}, \texttt{virtio\_disk.c} & Drivers básicos UART y VirtIO integrados con la caché de bloques. \\ \hline
+Comunicación entre procesos (IPC) & \texttt{pipe.c}, \texttt{sys\_pipe.c} & Implementa pipes unidireccionales en memoria; permite transmisión de datos entre procesos relacionados mediante \texttt{read}/\texttt{write} sincronizados. \\ \hline
+\end{tabular}
+\end{table}
+
+\subsubsection*{Gestión de procesos y planificación}
+La creación de procesos usa \texttt{fork()} para copiar el proceso padre y \texttt{exec()} para cargar nuevos programas. La planificación emplea un algoritmo \textbf{round-robin} básico, donde cada CPU asigna turnos de tiempo fijo a los procesos en una lista cíclica, sin prioridades. Todos los procesos comparten el mismo entorno básico, sin distinción entre usuarios \citep[pag. 82 ]{xv6_book}.
+
+\subsubsection*{Gestión de memoria virtual}
+Xv6 gestiona la memoria mediante paginación, asignando a cada proceso un espacio de direcciones virtual independiente. Utiliza solo 38 bits de los 64 que soporta RISC-V, permitiendo teóricamente hasta 256 GB de memoria por proceso \citep[pag. 38 ]{xv6_book}.
+
+El espacio de direcciones de cada proceso sigue la convención Unix clásica:
+La distribución de la memoria sigue el diseño clásico de Unix:
+
+\begin{itemize}
+    \item \textbf{Segmento de Código}: Ubicado en las direcciones más bajas (cerca de 0), con permisos de solo lectura y ejecución para proteger el código del programa.
+    
+    \item \textbf{Datos y Heap}: Situados a continuación del código, con permisos de lectura y escritura. El heap puede expandirse dinámicamente cuando el programa solicita más memoria mediante la llamada \texttt{sbrk}.
+    
+    \item \textbf{Pila del Usuario}: Ubicada en la parte superior de la memoria, crece hacia abajo y tiene una \textit{página guardia} inferior. Cualquier acceso a esta página causa que el kernel termine el proceso, previniendo desbordamientos.
+
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.4\textwidth]{figures/figura-xv6-2.png}
+\centering
+\caption{Disposicion del espacio de direcciones virtuales de un proceso.}
+\label{fig:figura_xv6_2}
+\centering
+\small Fuente: Obtenido de \citep{xv6_book} \textit{xv6: a simple, Unix-like teaching operating system}.
+\end{figure}
+
+\subsubsection*{Sistema de archivos}
+Xv6 implementa un sistema de archivos jerárquico que garantiza la integridad de los datos mediante journaling. Su diseño por capas organiza las funciones desde el acceso al disco hasta la gestión de archivos, haciendo que cada componente sea especializado y manejable. \citep{xv6_files_system}.
+
+\textbf{Organización en Disco}
+El disco se estructura en secciones bien definidas:
+
+\begin{itemize}
+    \item \textbf{Bloque 0}: Contiene el código de arranque
+    \item \textbf{Bloque 1}: Almacena el ``superbloque'' con los metadatos del sistema de archivos
+    \item \textbf{Bloques siguientes}: Albergan los inodos (que representan archivos)
+    \item \textbf{Secciones posteriores}: Incluyen mapas de bits para espacios libres y los bloques de datos reales
+    \item \textbf{Zona final}: Reservada para el journal o registro transaccional
+\end{itemize}
+
+\textbf{Gestión de Archivos y Directorios}
+Los directorios son archivos especiales que asocian nombres con inodos. Las rutas se resuelven secuencialmente (ej: \texttt{/usr/bin/ls} busca \texttt{usr}, luego \texttt{bin}).
+
+Las operaciones básicas (\texttt{open}, \texttt{read}, \texttt{write}, \texttt{close}) usan \textbf{descriptores de archivo} y una \textbf{caché de bloques}. \texttt{read} carga datos a memoria, mientras \texttt{write} los marca para escritura transaccional.
+\citep[pag. 85--86 ]{xv6_book}.
+
+\subsubsection*{Interfaz de llamadas (syscalls)}
+Xv6 implementa llamadas al sistema que siguen el modelo tradicional de Unix, permitiendo a los programas de usuario solicitar servicios del kernel mediante interrupciones de software.\citep[pag. 8--9 ]{xv6_book}.
+
+El mecanismo funciona de la siguiente manera:
+\begin{enumerate}
+    \item Un proceso en modo usuario invoca una syscall, lo que hace que el hardware genere una interrupción.
+    \item Esta interrupción transfiere el control al kernel, cambiando el modo de ejecución de la CPU.
+    \item El kernel identifica la syscall solicitada a través de un número único y ejecuta la función correspondiente.
+    \item Una vez completada, el kernel devuelve el control al proceso de usuario con los resultados necesarios.
+\end{enumerate}
+
+\subsubsection*{E/S y drivers}
+Los dispositivos en xv6 se integran en el sistema bajo el principio de que ``todo es un archivo''. Esto se logra mediante \textbf{archivos de dispositivo}, creados con la llamada al sistema \texttt{mknod}.
+
+\begin{itemize}
+    \item \texttt{mknod(path, major, minor)}: Crea un archivo especial que representa un dispositivo. Los parámetros \texttt{major} (mayor) y \texttt{minor} (menor) son números que identifican de forma única al controlador (\textit{driver}) del kernel y al dispositivo específico.
+\end{itemize}
+
+\textbf{Controladores de Dispositivos (Drivers)}
+El kernel incluye controladores mínimos pero funcionales para hardware esencial. Algunos ejemplos son:
+
+\begin{itemize}
+    \item \texttt{uart.c} para el puerto serie.
+    \item \texttt{virtio\_disk.c} para el acceso al disco.
+    \item \texttt{timer.c} para el temporizador del sistema.
+\end{itemize}
+
+\subsubsection*{Comunicación entre procesos (IPC)}
+Xv6 implementa un mecanismo básico de comunicación entre procesos (IPC) mediante \textbf{pipes}. Las pipes son canales unidireccionales en memoria que permiten a dos procesos relacionados intercambiar datos de forma sincronizada.\citep[pag. 73--74 ]{xv6_book},
+
+\subsection{Herramientas utilizadas (compiladores, emuladores, etc.)}
+
+Para la construcción, compilación y ejecución de \textit{xv6}, se emplean las siguientes herramientas principales:
+
+\begin{itemize}
+    \item \textbf{GCC (GNU C Compiler):} Compila el kernel y los programas de usuario escritos en C, generando binarios ELF compatibles con las arquitecturas \texttt{x86-32} o \texttt{RISC-V}.
+    
+    \item \textbf{QEMU:} Emulador de hardware ampliamente utilizado para ejecutar \textit{xv6} en entornos virtuales. Permite probar el sistema operativo sin necesidad de hardware físico, simulando arquitecturas \texttt{x86} o \texttt{RISC-V}.
+    
+    \item \textbf{Cross-compiler:} En sistemas como macOS o Windows, se requiere un compilador cruzado para generar binarios ELF destinados a la arquitectura objetivo de \textit{xv6}.
+\end{itemize}
+\citep{xv6_source},
+
+\subsection{Nivel de complejidad y accesibisslidad para estudiantes}
+Xv6 fue diseñado específicamente para ser un sistema operativo ligero y educativo. Su código completo consta de aproximadamente 10,000 líneas (equivalente a unas 99 páginas impresas)
+Su simplicidad relativa (ausencia de capas complejas como módulos dinámicos) lo hace muy accesible para estudiantes de OS. Aun así, cubre los conceptos esenciales de concurrencia, paginación, sistemas de archivos y llamadas al sistema típicos de un Unix real.\citep[pag. 10--11 ]{xv6_book}.

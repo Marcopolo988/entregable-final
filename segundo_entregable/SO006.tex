@@ -1,0 +1,78 @@
+\section{LibrettOS}
+\subsection{Nombre del proyecto o sistema operativo}
+Seguna la sitio oficial \citep{librettos_website_2021}, El nombre de este proyecto es LibrettOS, un sistema operativo de código abierto desarrollado por el Grupo de Investigación de Software de Sistemas de Virginia Tech. 
+Se basa en la combinación de dos paradigmas un microkernel y el modelo de biblioteca.
+\subsection{Enlace al repositorio y/o documentación oficial}
+\begin{itemize}
+    \item \textbf{Pagina oficial:} \url{https://librettos.org/}
+    \item \textbf{Enlace al repositorio oficial:} \url{https://github.com/ssrg-vt/librettos-src}
+    \item \textbf{Articulo:} \url{https://ssrg.ece.vt.edu/papers/vee20-librettos.pdf}
+\end{itemize}
+
+\subsection{Objetivo del proyecto}
+Según \citep{nikolaev2021librettos}, LibrettOS es un sistema operativo experimental de investigaciones. Su objetivo es explorar el paradigma del núcleo híbrido que combine con el microkernel multiserver, para mantener mayor seguridad y tolerancia a errores a fallos y permitir a las aplicaciones el acceso a directamente al hardware para un alto rendimiento. Especificamente no fue creado para fines educativo ni para uso constante, sino como un prototipo academico para diseñar nuevas ideas acerca de sistemas operativos.
+\subsection{Lenguaje(s) de implementación}
+Según el repositorio \citep{repositorio_rumprun_github}, LibrettOS fue implementado principalmente en el lenguaje de programación C (55.8\%), C++(0.5\%), Assembly(9.5\%), Makefile(4.2\%) y objetive-C(0.3\%), lo cual es clásico para sistemas operativos debido a la conexión cercana con el hardware y la facilidad
+para escribir código. Durante años, algunas partes del código también han sido implementadas en ensamblador para aprovechar características específicas del 
+hardware. 
+\subsection{Arquitectura del sistema (monolítica, microkernel, etc.)}
+Según \citep[pag. 5--6 ]{nikolaev2021librettos}, la arquitectura de LibrettOS combina modos de ejecucion para optimizar el rendimiento y el aislamiento. La aplicación 1 se ejecuta en el modo de sistema operativo de biblioteca, accediendo a todos los dispositivos de hardware.
+La aplicación 2 se comunica a través de de servidores de red. LibrettOS se ejecuta sobre Xen, un hypervisor de la arquitectura microkernel, el sistema permite varios accesos directos como indirectos al hardware. Para el almacenamiento, permite compartir archivos mediante un servidor NFS, actualmente LibrettOS es compatible con API POSIX/BSD. Para entender mejor la arquitectura, se muestra en la figura \ref{fig:ArquitecturaLibrettOS}.
+\begin{figure}[H]
+\centering
+\includegraphics[width=1\textwidth]{figures/ArquitecturaLibrettOS.png}
+\centering
+\caption{Arquitectura de LibrettOS.}
+\label{fig:ArquitecturaLibrettOS}
+\centering
+\small Fuente: Obtenido de \citep[pag. 5]{nikolaev2021librettos} \textit{LibrettOS: A Dynamically Adaptable Multiserver-Library OS}.
+\end{figure}
+
+
+\subsection{Componentes implementados (procesos, memoria, archivos, etc.)}
+LibrettOS es un sistema modular que distribuye los servicios del sistema operativo (procesos, memoria, archivos, red y controladores) entre servidores de usuario y librerías en espacio de aplicación. La tabla \ref{fig:TablaLibrettOS} resume sus principales subsistemas y su funcionamiento técnico.
+
+\begin{table}[H]
+\centering
+\caption{Funcionamiento técnico de los principales subsistemas de LibrettOS}
+\begin{tabular}{|p{3cm}|p{3cm}|p{9cm}|}
+\hline
+\textbf{Componente / Sub-sistema} & \textbf{Implementación en LibrettOS} & \textbf{Funcionamiento técnico (idea clave)} \\ \hline
+Gestión de procesos y planificación & \texttt{rumpkernel / rumprun-smp} & Cada dominio ejecuta un \textit{rumpkernel} multi-hilo con planificación M:N. Xen gestiona los vCPUs y Rumprun programa los hilos POSIX. \\ \hline
+Gestión de memoria & \texttt{NetBSD VM / Xen / IOMMU} & Usa memoria virtual de NetBSD con soporte para \textit{PCI passthrough}, \textit{IOMMU} y \textit{SR-IOV} para aislar y compartir hardware. \\ \hline
+Sistema de archivos & \texttt{ext3 / NFS / NVMe} & Emplea ext3 sobre NVMe y un servidor NFS en Rumprun para compartir volúmenes por red con buen rendimiento. \\ \hline
+Controladores de dispositivos & \texttt{NetBSD drivers / rumprun-smp} & Reutiliza drivers de NetBSD (NIC, NVMe), operando igual en modo aislado o \textit{library-OS}. \\ \hline
+Red (Network stack) & \texttt{NetBSD TCP/IP / servidor de red VIF} & Ejecuta la pila TCP/IP en la app o un servidor de red, usando canales virtuales (VIF) para el reenvío seguro. \\ \hline
+Servicios y compatibilidad POSIX & \texttt{rumprun / NetBSD libc} & Soporta servicios POSIX/BSD comunes; algunas llamadas como \texttt{fork()} aún no están implementadas. \\ \hline
+\end{tabular}
+\label{fig:TablaLibrettOS}
+\centering
+Fuente: Elaboración propia con base en \citep{nikolaev2021librettos}.
+\end{table}
+\subsubsection*{Gestión de procesos y planificación}
+Gestiona el intercambio de mensajes entre procesos del sistema y el microkernel. Esta arquitectura refuerza el aislamiento y la estabilidad, ya que los servicios del sistema operan como procesos independientes que se comunican de forma controlada.
+\subsubsection*{Gestion de memoria}
+Cada dominio maneja su propia memoria virtual usando los mecanismos estándar de NetBSD sobre Rumprun. Para acceso directo a hardware usa PCI passthrough e IOMMU, lo que permite apartamiento seguro entre dominios. Además, soporta SR-IOV para dividir dispositivos físicos NICs o NVMe en funciones virtuales asignables a cada VM.
+\subsubsection*{Sistema de archivos}
+Reutiliza el sistema de archivos de NetBSD. Una instancia de Rumprun con un volumen ext3 sobre NVMe actúa como servidor NFS, exportando volúmenes por red. Los clientes montan este recurso mediante NFS, demostrando buen rendimiento en pruebas de E/S.
+\subsubsection*{Controladores de dispositivo}
+ Reutiliza los controladores de NetBSD como por ejemplo, ixgbe para NICs Intel 10GbE y NVMe. Los mismos drivers funcionan en ambos modos de operación como para aislado o library-OS, permitiendo cambiar dinámicamente de modo sin reemplazar controladores.
+ \subsubsection*{Red}
+Ejecuta la pila TCP/IP de NetBSD dentro del espacio de aplicación o en un servidor de red dedicado. Este servidor reenvía tramas L2 mediante canales virtuales VIF. Si el servidor falla, el estado TCP se mantiene en la aplicación, lo que permite su recuperación.
+\subsubsection*{Servicios y compatibilidad POSIX} 
+LibrettOS es compatible con POSIX/BSD, soportando servicios como SSH, bases de datos y utilidades estándar. Algunas llamadas complejas como fork() y pipe(), aún no están implementadas, pero se consideran alcanzables en futuras versiones.
+\subsection{Herramientas utilizadas (compiladores, emuladores, etc.)}
+Según \citep{nikolaev2021librettos}, LibrettOS se basa en tecnologías como rump kernels y el uso de POSIX.
+
+\begin{itemize}
+    \item \textbf{Rump kernels}: Utilizados para ejecutar sistemas operativos como \textit{anykernels} fuera del kernel monolítico de NetBSD.
+    \item \textbf{Rumprun}: Un unikernel basado en \textit{rump kernels} para ejecutar aplicaciones directamente con menos sobrecarga del sistema operativo.
+    \item \textbf{Hipervisores como Xen y KVM}: Usados para gestionar máquinas virtuales.
+    \item \textbf{IOMMU y PCI Passthrough}: Herramientas para dar acceso directo a dispositivos físicos desde VMs.
+    \item \textbf{DPDK y SPDK}: Bibliotecas de alto rendimiento para el acceso directo a hardware en aplicaciones de red y almacenamiento.
+\end{itemize}
+
+
+\subsection{Nivel de complejidad y accesibilidad para estudiantes}
+Según el repositorio \citep{repositorio_rumprun_github}, describen que LibrettOS es un prototipo experimental y advierte en un nota que no esta diseñado para uso diario normal, usar bajo su propia responsabilidad. Entonces esto quiere decir que no esta diseñado como un proyecto educativo fácil de usar, sino como una plataforma de investigación.
+Por lo tanto su dificultada esta alta, pero si es accesible a toda el código mediante el repositorio y a la web oficial de LibrettOS.

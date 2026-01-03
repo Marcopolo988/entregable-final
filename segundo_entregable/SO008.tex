@@ -1,0 +1,103 @@
+\section{HelenOS}
+
+\subsection{Nombre del proyecto o sistema operativo}
+El nombre del sistema operativo es ``HelenOS''. El proyecto fue iniciado por Jakub Jermar en 2001, en ese momento era un código independiente que funcionaba como kernel para IA-32. \citep{decky2015application}
+
+\subsection{Enlace al repositorio y/o documentación oficial}
+\begin{itemize}
+    \item \textbf{Enlace al repositorio oficial:} \url{https://github.com/HelenOS/helenos}
+    \item \textbf{Documentación oficial y Wiki:} \url{https://www.helenos.org/}
+\end{itemize}
+
+\subsection{Objetivo del proyecto}
+Según \citep{decky2015application}, este sistema operativo, tiene un enfoque educativo y experimental. Además, busca servir como una plataforma para la investigación y desarrollo de sistemas operativos de propósito general, teniendo muy en cuenta la fiabilidad y practicidad.
+
+\subsection{Lenguaje(s) de implementación}
+Según \citep{decky2010road} y confirmando con el repositorio oficial \citep{helenos_GitHub}, el sistema operativo HelenOS está principalmente implementado en C, con algo de apoyo de C++, Meson como “build system”, algunos componentes escritos en ensamblador para tareas de bajo nivel y python para scripts auxiliares.
+
+\subsection{Arquitectura del sistema (monolítica, microkernel, etc.)}
+El sistema operativo HelenOS se baso en la arquitectura multiserver de microkernel, multiserver es un tipo de arquitectura microkernel, donde el núcleo del sistema operativo (microkernel) es responsable de las funciones básicas para el funcionamiento del sistema operativo como gestión de memoria, comunicación de procesos y scheduling; y por otro lado, los demás servicios del sistema operativo se implementan como “servidores” y se ejecutan en el espacio de usuario. De esta manera, los servidores pueden ser desarrollados, cambiados y reiniciados de manera independiente sin afectar al kernel \citep{decky2015application}.
+A continuación, se incluye una vista general de la arquitectura/organización del kernel de HelenOS:
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/overviewKernelArchitecturaHelenOS.jpg}
+\centering
+\caption{Vista general de la arquitectura/organización del kernel de HelenOS.}
+\label{fig:overviewKernelArchitecturaHelenOS}
+\centering
+\small Fuente: Obtenido de \citep{decky2015application} \textit{Application of Software Components in Operating System Design}.
+\end{figure}
+
+\subsection{Componentes implementados (procesos, memoria, archivos, etc.)}
+En HelenOS, cada componente del sistema operativo se implementa como una tarea aislada con su propio espacio de direcciones (siguiendo la arquitectura multiserver), identificador único y comunicación mediante interfaces bien definidas (IPC o syscall API) \citep{decky2015application}.
+A continuación se presenta una tabla con los principales componentes y subsistemas de HelenOS, su nombre de archivo en el repositorio oficial y la idea técnica detrás de su implementación.
+\begin{table}[H] 
+\centering 
+\caption{Funcionamiento técnico (idea clave) de los principales subsistemas de HelenOS} 
+\begin{tabular}{|p{5cm}|p{4cm}|p{6cm}|} 
+\hline 
+\textbf{Componente / Sub-sistema} & \textbf{Nombre en HelenOS (tarea / servicio)} & \textbf{Funcionamiento técnico (idea clave)} \\ \hline 
+Gestión de memoria & \texttt{frame allocator}, \texttt{slab allocator}, \texttt{address space mgmt} & Asignación de marcos físicos con separación por tareas. \\ \hline 
+Planificación / multitarea & \texttt{thread scheduler}, \texttt{task mgmt} & Aislamiento por espacio de direcciones y comunicación por IPC. \\ \hline 
+Sistema de archivos & \texttt{TMPFS}, \texttt{FAT}, \texttt{ext4}, \texttt{MINIX FS} & Implementados como tareas independientes, comunicadas vía VFS. \\ \hline 
+Subsistemas de E/S y drivers & Ej. \texttt{rtl8139}, \texttt{ahci}, \texttt{ps2}, \texttt{usb hid} & Se usan como tareas separadas, organizados en el árbol de dispositivos. \\ \hline 
+Servicios de red & \texttt{inetsrv}, \texttt{tcp}, \texttt{udp}, \texttt{ethip} & Componentes aislados, comunicados por IPC. \\ \hline 
+Servicios de usuario / consola & \texttt{console}, \texttt{clipboard}, \texttt{compositor}, \texttt{bdsh} & Tareas independientes con comunicación por IPC. \\ \hline 
+Servicios de nombres y localización & \texttt{naming service}, \texttt{location service} & Servicios singleton para identificar y vincular componentes. \\ \hline 
+\end{tabular} 
+\centering 
+Fuente: Elaboración propia con base en \citep{decky2015application, helenos_GitHub}. 
+\end{table}
+
+\subsubsection*{Gestión de memoria} 
+En HelenOS, se implementan los componentes \texttt{frame allocator}, \texttt{slab allocator} y \texttt{address space management} para asignar marcos físicos, gestionar zonas de memoria y mantener espacios de direcciones separados por tarea. Esta separación es para encapsular el estado de cada componente y facilitar la verificación de corrección \citep[p. 39]{decky2015application}.
+
+\subsubsection*{Planificación / multitarea} 
+La planificación se realiza mediante \texttt{thread scheduler} y \texttt{task management}. Le generan a cada tarea su propio espacio de direcciones y permiten su comunicación con otras mediante IPC \citep[p. 38]{decky2015application}.
+
+\subsubsection*{Sistema de archivos} 
+HelenOS soporta múltiples sistemas de archivos como \texttt{TMPFS}, \texttt{FAT}, \texttt{ext4}, \texttt{MINIX FS}, cada uno implementado como una tarea independiente; se comunican con el sistema mediante el \texttt{vfs}, el cual es un intermediario entre drivers y aplicaciones \citep[p. 40]{decky2015application}.
+
+\subsubsection*{Subsistemas de E/S y drivers} 
+Los drivers están organizados jerárquicamente en el árbol de dispositivos (como se muestra en la figura). Cada driver (como \texttt{rtl8139}, \texttt{ahci}, \texttt{ps2}, \texttt{usb hid}) se implementa como una tarea separada, para permitir modularidad, aislamiento y reemplazo en ejecución \citep[p. 41]{decky2015application}.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/arbolDriversHelenOS.jpg}
+\centering
+\caption{Árbol de drivers en HelenOS.}
+\label{fig:arbolDriversHelenOS}
+\centering
+\small Fuente: Obtenido de \citep{decky2015application} \textit{Application of Software Components in Operating System Design}.
+\end{figure}
+
+\subsubsection*{Servicios de red} 
+Los protocolos de red \texttt{tcp}, \texttt{udp}, \texttt{ethip} y el servicio \texttt{inetsrv} se implementan como componentes independientes. Siguiendo así la arquitectura multiserver \citep[p. 40]{decky2015application}.
+
+\subsubsection*{Servicios de usuario / consola} 
+Los componentes \texttt{console}, \texttt{clipboard}, \texttt{compositor} y el shell \texttt{bdsh} se ejecutan como tareas separadas \citep[p. 40]{decky2015application}.
+
+\subsubsection*{Servicios de nombres y localización} 
+Son servicios singleton, específicamente \texttt{naming service} y el \texttt{location service}, que permiten identificar y vincular componentes en el sistema \citep[p. 38]{decky2015application}.
+
+\subsection{Herramientas utilizadas (compiladores, emuladores, etc.)}
+HelenOS utiliza herramientas para el lenguaje C, también usa máquinas virtuales, sistemas de construcción e implementaciones. Entre sus principales herramientas están:
+\begin{itemize}
+    \item \textbf{Compilador:} Uso de GCC y Clang, con toolchains cruzadas para las diferentes arquitecturas soportadas (x86, ARM, MIPS, SPARC, PowerPC e Itanium) \citep{helenos_GitHub}.
+    \item \textbf{Emuladores y máquinas virtuales:} Para ejecutar HelenOS se usa el entorno “QEMU”, para probar, depurar y validar el ISO del microkernel \citep{helenos_GitHub}.
+    \item \textbf{Sistema de construcción:} Makefile con scripts Bash, Python y uso de MESON (experimental) para apoyar la compilación cruzada de componentes \citep{helenos_GitHub}.
+    \item \textbf{Herramienta de portabilidad:} \textit{HelenOS Coastline}, un repositorio desarrollado por los creadores del microkernel, puede ser usado para la integración de software externo más fácilmente.
+\end{itemize}
+
+\subsection{Nivel de complejidad y accesibilidad para estudiantes}
+Considerando un entorno de estudio de sistemas operativos, justamente el entorno en el que se propicia esta
+investigación, con conocimientos previos de C y fundamentos de sistemas operativos; es un proyecto con un 
+nivel de complejidad media, más que nada por su tamaño (es extenso), además del uso de servicios mediante IPC
+y también considerar que la arquitectura multiserver, que implica microkernel, no es la más sencilla tampoco.
+Y eso sin contar la diversidad de arquitecturas soportadas, lo cual añade dificultad al análisis del código. 
+
+Se consideró en la categorización del nivel de complejidad que, la accesibilidad para los estudiantes es
+bastante buena, ya que el proyecto es open source y cuenta con una gran cantidad de estudios en torno a él.
+Sin embargo, una consideración a tomar en cuenta es que, aunque HelenOS dispone de documentación formal 
+(guías, artículos, documentación generada), esta puede no detallar cada componente del sistema operativo con 
+la exhaustividad que otros sistemas operativos grandes ofrecen (por ejemplo un libro completo o wiki 
+ultra-detallada).

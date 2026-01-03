@@ -1,0 +1,95 @@
+\section{FreeDOS}
+
+\subsection{Nombre del proyecto o sistema operativo}
+El sistema operativo FreeDOS, su nombre proviene de la idea de ofrecer una alternativa libre y abierta al sistema operativo MS-DOS, tras el anuncio de Microsoft en 1994 de interrumpir el soporte a este último \citep{freedos_home}.  
+
+\subsection{Enlace al repositorio y/o documentación oficial}
+\begin{itemize}
+    \item \textbf{Repositorio oficial:} \url{https://github.com/FDOS}
+    \item \textbf{Sitio web del proyecto:} \url{https://www.freedos.org/}
+\end{itemize}
+
+\subsection{Objetivo del proyecto}
+El objetivo principal de FreeDOS, además de sus enfoques educativo y experimental, es proporcionar un sistema operativo compatible con MS-DOS completamente libre, de código abierto y mantenido por la comunidad.  
+Busca preservar la capacidad de ejecutar aplicaciones y controladores diseñados originalmente para DOS, especialmente aquellas dependientes de entornos de 16 bits \citep{freedos_home}.  
+
+\subsection{Lenguaje(s) de implementación}
+FreeDOS está desarrollado principalmente en \texttt{C}, con secciones escritas en \texttt{x86 Assembly}, especialmente en el núcleo y los controladores de dispositivo.  
+El lenguaje C se utiliza para la lógica general del sistema, mientras que el ensamblador proporciona control de bajo nivel sobre interrupciones, rutinas BIOS y gestión de hardware.  
+Este enfoque híbrido permite combinar eficiencia y compatibilidad con el hardware x86, tal como lo hacía MS-DOS \citep{freedos_developers}.  
+
+\subsection{Arquitectura del sistema}
+FreeDOS hereda la arquitectura clásica de MS-DOS, organizada en capas que separan el hardware del usuario mediante el BIOS y un núcleo DOS.  
+El sistema se ejecuta en modo real (16 bits), operando directamente sobre la arquitectura Intel x86 sin protección de memoria ni multitarea.  
+
+Se presenta un esquema adaptado que representa la arquitectura del sistema operativo MS-DOS en que se basa FreeDOS.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/architecturefreedos.png}
+\caption{Arquitectura clásica de MS-DOS, base de FreeDOS.}
+\label{fig:freedos_architecture}
+\centering
+\small Fuente: Adaptado de Microsoft Press, \citep{msdos_architecture_diagram}, \textit{FreeDOS Kernel: An MS-DOS Emulator} (1996).
+\end{figure}
+
+\subsection{Componentes implementados (procesos, memoria, archivos, etc.)}
+FreeDOS es un sistema operativo de código abierto que emula el comportamiento del MS-DOS original. Está diseñado para ser compatible con aplicaciones y controladores de dispositivos escritos para MS-DOS, proporcionando una plataforma para ejecutar software antiguo en hardware moderno. A continuación, se describen los principales componentes y subsistemas implementados en FreeDOS:
+
+\begin{table}[H]
+\centering
+\caption{Funcionamiento técnico de los principales subsistemas de FreeDOS}
+\begin{tabular}{|p{5cm}|p{4cm}|p{6cm}|}
+\hline
+\textbf{Componente / Sub-sistema} & \textbf{Nombre en FreeDOS (archivo)} & \textbf{Funcionamiento técnico (idea clave)} \\ \hline
+Intérprete de comandos & \texttt{COMMAND.COM / FreeCOM} & Shell que carga programas, procesa scripts .BAT y maneja redirección/piping básico. \\ \hline
+Kernel & \texttt{KERNEL.SYS} & Implementa servicios INT 21h (archivos, dispositivos, tiempo), gestión básica de memoria y soporte para TSRs. \\ \hline
+Sistema de archivos & Varios drivers FAT & Soporte nativo para FAT12/FAT16/FAT32 sin VFS, con herramientas como COPY, DIR, DEL. \\ \hline
+Gestión de memoria & \texttt{HIMEM / EMM386} & Modelo clásico DOS: 640KB convencional + UMB, sin protección de memoria ni paginación. \\ \hline
+Gestión de procesos & (Parte del kernel) & Multitarea cooperativa nativa, soporte para TSRs, sin procesos aislados ni preemptión. \\ \hline
+Drivers y dispositivos & Varios \texttt{.SYS / .EXE} & Drivers para discos, CD-ROM, teclado/ratón; algunos actualizados para hardware moderno. \\ \hline
+\end{tabular}
+\label{fig:TablaFreeDOS}
+\centering
+Fuente: Elaboración propia con base en la documentación técnica de FreeDOS.
+\end{table}
+
+\subsubsection*{Intérprete de comandos}
+Proporciona la interfaz de línea de comandos para interactuar con el sistema operativo. Su función principal es cargar programas ejecutables, procesar scripts por lotes (.BAT) y manejar características básicas como redirección de entrada/salida y piping entre comandos. FreeDOS incluye su propio COMMAND.COM y alternativas como Free-COM. \citep[pag. 240--242 ]{freedos_kernel}
+
+\subsubsection*{Kernel}
+Implementa las funciones centrales compatibles con MS-DOS mediante servicios de interrupción 21h para operaciones de archivos, dispositivos, tiempo y memoria. Gestiona memoria convencional y superior (UMB), soporta programas TSR (Terminate and Stay Resident) y proporciona servicios básicos de disco. El kernel de FreeDOS deriva del proyecto DOS-C y está licenciado bajo GPL v2. \citep{freedos_kernel}
+
+\subsubsection*{Sistema de archivos}
+Brinda soporte nativo para sistemas de archivos FAT12, FAT16 y FAT32 en modo DOS real. Permite el manejo de particiones FAT y disquetes mediante drivers, con herramientas tradicionales como COPY, DIR y DEL para operaciones básicas. A diferencia de sistemas modernos, FreeDOS no implementa un VFS ni abstracciones complejas de dispositivos. \citep[pag. 30--33 ]{freedos_kernel}
+
+\subsubsection*{Gestión de memoria}
+Administra el modelo clásico de memoria DOS con espacio convencional (primeros 640 KB) y memoria superior (UMB) mediante controladores. Soporta extensiones de memoria a través de controladores como Himem.sys y emm386.exe en entornos compatibles, pero carece de mecanismos modernos como protección de memoria o paginación presentes como en SO modernos. \citep[pag. 48 ]{freedos_kernel}
+
+\subsubsection*{Gestión de procesos}
+Coordina la ejecución de programas de forma cooperativa en lugar de preemptiva. Permite el uso de programas TSR (Terminate and Stay Resident) que permanecen en memoria para proporcionar servicios, pero no implementa procesos aislados ni protección entre espacios de direcciones. Proyectos externos pueden añadir capacidades de multitarea, aunque no forman parte del kernel base. \citep[pag. 50 ]{freedos_kernel}
+
+\subsubsection*{Drivers y dispositivos}
+Proporciona soporte para hardware mediante controladores para discos, CD-ROM, teclado, ratón y otro hardware clásico. algunos drivers se han actualizado para soportar hardware moderno a través de emuladores, manteniendo la compatibilidad con el ecosistema tradicional de DOS, \citep[pag. 52--53 ]{freedos_kernel}
+
+\subsection{Herramientas utilizadas (compiladores, emuladores, etc.)}
+
+ FreeDOS puede instalarse en cualquier emulador o máquina virtual creando un disco virtual e iniciando desde el CD de instalación. Usando QEMU como ejemplo, el proceso es universal para Linux, Windows y Mac.\citep[pag. 15--17 ]{freedos_using}
+
+\begin{itemize}
+    \item \textbf{Compiladores:} Utiliza principalmente GCC (GNU Compiler Collection) para la compilación del kernel y las utilidades del sistema, empleando Makefiles para gestionar el proceso de construcción tanto nativa como cruzada.
+    
+    \item \textbf{Lenguajes:} Soporta principalmente lenguajes de programación C y Assembly para el desarrollo del sistema, junto con herramientas de scripting por lotes a través de archivos BAT.
+    
+    \item \textbf{Emuladores:} Puede ejecutarse en emuladores populares como DOSBox, QEMU y VirtualBox, lo que facilita su uso y pruebas en hardware moderno sin necesidad de equipos legacy.
+    
+    \item \textbf{Arquitectura compatible:} Está diseñado principalmente para arquitectura x86, con soporte para procesadores desde los 8088/8086 hasta sistemas modernos a través de emulación.
+\end{itemize}
+
+\subsection{Nivel de complejidad y accesibilidad para estudiantes}
+FreeDOS enseña conceptos históricos y de bajo nivel de PC (BIOS, boot, interrupciones, FAT); es complementario: excelente para aprendizaje de hardware/arranque y compatibilidad, menos apropiado para enseñar técnicas modernas de diseño de SO (ej. virtual memory, protección por procesos).\citep{freedos_programs}
+\begin{itemize}
+    \item \textbf{Complejidad técnica:} Abarca desde nivel básico (comandos DOS, scripting BAT, programación con interrupciones) hasta avanzado (desarrollo de kernel, drivers, porting de hardware).
+    
+    \item \textbf{Accesibilidad educativa:} Muy alta para laboratorios de arquitectura de computadores, permitiendo estudiar el proceso de arranque (boot sector), interrupciones BIOS/DOS (int 10h, int 21h) y programación en entornos limitados.
+\end{itemize}

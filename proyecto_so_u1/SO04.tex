@@ -1,0 +1,20 @@
+\section{Linux}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{figures/linux.jpeg}
+    \caption[Logo del núcleo Linux]%
+            {Logo del núcleo Linux \citep{wikipedia5}}
+    \label{fig:linux}
+\end{figure}
+
+Linux es un sistema operativo de tipo Unix iniciado en 1991 por Linus Torvalds como un kernel monolítico, modular y multitarea.  
+Originalmente escrito para PCs i386, ha evolucionado hasta ofrecer compatibilidad POSIX y soporte extenso de hardware, siendo desarrollado bajo el modelo de código abierto, donde las mejoras provienen de contribuyentes individuales y corporativos, mientras que la dirección general la marca la comunidad y no un único proveedor \citep{wikipedia5, oci2024}.  
+{\sloppy
+Su arquitectura se basa en un kernel monolítico moderno que integra características modulares. Todo el núcleo, incluidos los controladores de dispositivos, se ejecuta en un único espacio de direcciones en modo kernel. Sin embargo, soporta la carga y descarga dinámica de módulos en tiempo de ejecución, lo que le otorga flexibilidad similar a la de los micronúcleos sin sacrificar el rendimiento propio de un diseño monolítico \citep[pp.~7]{love2010}.  
+}
+El núcleo de Linux está escrito principalmente en C, con secciones críticas en ensamblador para optimizar la interacción directa con el hardware. Las aplicaciones en espacio de usuario, en cambio, pueden desarrollarse en diversos lenguajes como C, C++, Python o Rust.  
+
+Entre sus componentes principales se encuentran la gestión de memoria con asignación y protección, la planificación de procesos que regula el uso de la CPU, los controladores de dispositivos para el hardware, el sistema de llamadas al sistema con sus mecanismos de seguridad, y el sistema de archivos virtual (VFS), encargado de unificar múltiples formatos y módulos adicionales \citep{oci2024}.  
+
+Linux posee una de las comunidades de código abierto más amplias y activas del mundo, integrada por miles de desarrolladores pertenecientes a empresas como Red Hat, Google, Intel o IBM, así como por colaboradores independientes. La documentación es igualmente extensa e incluye las \texttt{man pages}, el proyecto de documentación oficial del kernel (\url{https://docs.kernel.org/}), wikis como la Arch Wiki, foros especializados y numerosos libros técnicos.  

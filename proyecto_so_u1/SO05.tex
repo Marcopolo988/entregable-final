@@ -1,0 +1,19 @@
+\section{MINIX 3}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{figures/minix.jpeg}
+    \caption[Estructura de MINIX 3]%
+            {Estructura de MINIX 3 \citep{usenix2010}}
+    \label{fig:minix}
+\end{figure}
+
+MINIX fue creado en 1987 por Andrew Tanenbaum como herramienta docente para la enseñanza de sistemas operativos. En 2005 se anunció MINIX 3, una reimplementación centrada en la fiabilidad y la modularidad, cuyo propósito principal es ofrecer un sistema operativo compatible con POSIX, recuperable ante fallos y adecuado tanto para aplicaciones críticas como para entornos educativos. A diferencia de otros sistemas, fue escrito completamente desde cero, sin incluir código de AT\&T, manteniendo compatibilidad con la versión 7 de Unix y los estándares POSIX \citep[pp.~10]{usenix2010}.  
+
+Su arquitectura está basada en un microkernel muy reducido que se encarga únicamente de interrupciones, gestión básica de procesos y comunicación mediante IPC. Todo lo demás se ejecuta en el espacio de usuario como servidores independientes: controladores de dispositivos, gestor de archivos, gestor de procesos y gestor de memoria. Este diseño multiserver permite que cada componente esté aislado, de modo que un fallo en un servidor no comprometa al sistema completo. Incluso cuenta con un servidor de reencarnación que reinicia automáticamente los componentes defectuosos para mejorar la tolerancia a fallos \citep{csvu2007}.  
+
+MINIX 3 está escrito principalmente en C, con secciones en ensamblador dedicadas a la inicialización del hardware y a rutinas críticas de bajo nivel.  
+
+Entre sus componentes principales se encuentran la gestión de procesos, a cargo de un proceso supervisor que controla creación, terminación y recolección de fallos; la gestión de memoria, donde el microkernel provee segmentación y paginación básica mientras un servidor en espacio de usuario administra la memoria virtual; el servidor de archivos (Mini-FS) con soporte POSIX; controladores de dispositivos que se ejecutan como procesos de usuario aislados; y soporte para interfaces gráficas como X11 o entornos ligeros tipo EDE, siguiendo la tradición Unix \citep[pp.~12]{usenix2010}.  
+
+La comunidad de MINIX 3, aunque más pequeña en comparación con otros proyectos de código abierto, ha tenido impacto en el ámbito académico. Hasta 2010 su web oficial registraba cerca de 1.7 millones de visitas y más de 300,000 descargas de CD \footnote{\url{usenix.org}}. El proyecto participó en Google Summer of Code entre 2008 y 2010, y mantiene recursos como wiki, grupos de discusión y repositorios en GitHub. Su documentación se apoya en el libro \textit{Operating Systems: Design and Implementation} de Tanenbaum (3ª edición), artículos académicos y materiales de congresos, lo que lo convierte en una referencia educativa sólida en el campo de los sistemas operativos.  
