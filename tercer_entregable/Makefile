@@ -47,12 +47,12 @@ $(EMAIN).pdf:	$(MAIN).ps
 	$(PS2PDF) -sPAPERSIZE=letter $< $@
 
 clean:
-	$(RM) -f *.aux \
+	$(RM) -f *.aux *.gz\
 		$(MAIN).log $(MAIN).dvi $(MAIN).ps $(MAIN).blg $(MAIN).bbl \
 		$(MAIN).lot $(MAIN).lof $(MAIN).toc $(MAIN).pdf $(EMAIN).pdf
 
 # Suggested by Neil B.
 neat:
-	$(RM) -f *.aux \
+	$(RM) -f *.aux *.gz\
 		$(MAIN).log $(MAIN).blg $(MAIN).bbl \
 		$(MAIN).lot $(MAIN).lof $(MAIN).toc
