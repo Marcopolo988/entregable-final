@@ -1,22 +1,93 @@
 \chapter{Diseño del sistema operativo propuesto}
 
+Este capítulo presenta el diseño del sistema operativo HelenOS, Diseñado a partir de una arquitectura de micronúcleo y entornos operativos
+multiservidor \citep{decky2015application,decky2010road,helenos_GitHub}. Se detallan el diseño estructural y los módulos esenciales para el desarrollo, 
+las políticas de planificación y manejo de recursos y el flujo de ejecución esperado desde el arranque hasta la interacción del usuario.
+Se implementa un núcleo básico apoyado por múltiples servidores que operan en el área de usuario como redes, archivos y controladores, comunicándose
+mediante paso de mensajes asíncrono \citep{decky2015application}. Ademas se inspirado en Unix/POSIX, evita interfaces heredadas cuando 
+existen alternativas modernas, como por ejemplo, prescinde de los sockets de POSIX y expone una API orientada a flujos TCP \citep{korop2025packet,helenos_project}.
+La ruta de la comunicación de red atraviesa por procesos (NIC \textrightarrow{} Ethernet \textrightarrow{} IP \textrightarrow{} TCP) 
+antes de llegar a la aplicación, reforzando el aislamiento y la modularidad \citep{korop2025packet}.
+Finalmente, los ejecutables siguen el formato ELF con soporte de enlace dinámico, PIE y TLS, preparados por un servidor de carga antes del inicio de cada tarea \citep{volf2025rust}.
+
 \section{Diagrama de arquitectura general}
+El sistema operativo HelenOS está diseñado como un microkernel relativamente pequeño, asistido por un conjunto de controladores de espacio
+de usuario y tareas de servidor. HelenOS no es muy radical en cuanto a qué subsistemas deben o no implementarse en el kernel, en algunos
+casos, existen tanto controladores de kernel como de espacio de usuario. La razón para crear el sistema como un microkernel es prosaica.
+Si bien inicialmente es más difícil obtener el mismo nivel de funcionalidad de un microkernel que en el caso de un kernel monolítico simple,
+un microkernel es mucho más fácil de mantener una vez que sus componentes se han puesto en funcionamiento. Por lo tanto, el kernel de HelenOS,
+así como sus bibliotecas esenciales de espacio de usuario, solo pueden ser mantenidas por unos pocos desarrolladores que las comprendan completamente.
+Además, un sistema operativo basado en microkernel se completa antes que los kernels monolíticos, ya que el sistema puede utilizarse
+incluso sin algunos subsistemas tradicionales (por ejemplo, dispositivos de bloque, sistemas de archivos y redes). Segun \citep{helenos_design_2006}.
+
+Pordemos observar el diagrama de arquitectura general en la Figura \ref{fig:Arquitectura HelenOS}.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{figures/Arquitectura HelenOS.png}
+	\caption{Diseño general de HelenOS y organización multiservidor basada en microkernel (fuente: \citep{helenos_design_2006}).}
+	\label{fig:Arquitectura HelenOS}
+\end{figure}
 
 \section{Componentes a implementar}
 
-\section{Bootloader}
+\subsection{Bootloader}
+En la arquitectura x86-64, HelenOS emplea el gestor de arranque GRUB (Grub boot loader). Segun \citep{helenos_wiki_tutorial} para iniciar el sistema. Este se encarga de cargar el kernel junto
+con un conjunto inicial de tareas de espacio de usuario necesarias para completar el proceso de arranque. Asimismo, GRUB carga un disco
+RAM que contiene el sistema de archivos raíz. Durante las fases iniciales del arranque, el sistema muestra mensajes de registro generados
+tanto por el kernel como por las tareas de espacio de usuario a medida que se inicializan. Una vez completado este proceso, el compositor
+de la interfaz gráfica toma control de la pantalla, momento en el cual el sistema ya cuenta con más de 35 tareas de espacio de usuario en
+ejecución, responsables de proporcionar la funcionalidad básica del sistema.
+Según la documentación de diseño y del propio proyectos \citep{helenos_design_2006,helenos_prjdoc_2006}.
 
-\section{Kernel básico}
+\subsection{Kernel básico}
+Segun \citep{decky2010road}El planificador de HelenOS mantiene varias colas de ejecución asociadas a cada procesador. Los hilos preparados para ejecutarse se insertan en estas colas de acuerdo con su nivel
+de prioridad y el procesador actual, desde donde son seleccionados para su ejecución. Para garantizar un reparto equilibrado de la carga, existen hilos del núcleo con funciones
+especiales encargados de migrar hilos entre procesadores cuando es necesario. La planificación se basa en una política de round-robin aplicada sobre múltiples colas de prioridad.
 
-\section{Gestión de procesos}
+Aunque el diseño del micronúcleo prioriza la simplicidad conceptual, HelenOS hace uso de mecanismos modernos y eficientes, incluyendo árboles AVL y B+, tablas hash, un asignador
+de memoria SLAB, diversas primitivas de sincronización interna y técnicas de bloqueo de grano fino, con el objetivo de mejorar el rendimiento y la escalabilidad del sistema.
 
-\section{Gestión de memoria}
+\subsection{Gestión de procesos}
+En HelenOS, el hilo es la unidad básica de ejecución del kernel y se agrupa en tareas según su funcionalidad. En el espacio de usuario se emplean fibrillas, hilos cooperativos
+construidos sobre una API del núcleo y utilizados por el marco asíncrono. Debido a su arquitectura de micronúcleo, la comunicación entre procesos (IPC) es fundamental.
+Las tareas intercambian información mediante mensajes breves o mediante el compartimiento de memoria para datos de mayor tamaño. El modelo de IPC permite múltiples conexiones
+simultáneas entre tareas. \citep{helenos_design_2006,jindrak2022cpp}.
 
-\section{Sistema de archivos}
+\subsection{Gestión de memoria}
+HelenOS garantiza la coherencia entre la TLB y las tablas de páginas mediante un mecanismo de invalidación coordinada en sistemas multiprocesador. La gestión de memoria del
+sistema cubre la asignación para el kernel, la traducción de direcciones virtuales y la administración de espacios de direcciones. Cada espacio de direcciones está compuesto
+por áreas disjuntas respaldadas por memoria anónima, imágenes ejecutables o memoria física. El sistema permite compartir áreas entre tareas, pero no soporta intercambio de
+páginas con almacenamiento secundario. \citep{helenos_design_2006}
 
-\section{Interfaz de usuario (CLI mínima)}
+\subsection{Sistema de archivos}
+El sistema operativo HelenOS, tiene el soporte de sistemas de archivos se basa en un Sistema de Archivos Virtual (VFS), que actúa como una capa de abstracción entre las
+aplicaciones y los distintos sistemas de archivos. El VFS se implementa como un servidor central encargado de unificar el acceso a los dispositivos de almacenamiento.
+Cada sistema de archivos se ejecuta como un servicio independiente en espacio de usuario y registra sus capacidades en el VFS. El VFS proporciona una interfaz común de
+operaciones y ofrece compatibilidad con POSIX mediante una capa de adaptación. Su diseño se divide en un frontend, que gestiona solicitudes simples, y un backend, que
+delega las operaciones al servidor de archivos correspondiente. \citep{zarevucky2012improved,cimerman2025raid}.
+\subsection{Interfaz de usuario}
+HelenOS proporciona una interfaz de usuario básica basada en texto, sin soporte gráfico integrado en el núcleo. La interacción con el sistema se realiza mediante un shell en
+espacio de usuario, denominado Bdsh, encargado de interpretar comandos, ejecutar aplicaciones y gestionar la entrada y salida estándar. Dado su enfoque como sistema operativo
+de investigación, el entorno de usuario es minimalista y se limita a una interfaz de línea de comandos (CLI). Las aplicaciones se comunican con los servidores del sistema a 
+través del API de HelenOS, actuando el shell como un cliente de dichos servicios sin requerir soporte especial del kernel. Segun \citep{helenos_wiki_tutorial}.
 
-\section{Políticas de planificación y manejo de recursos}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{figures/Diseño de HelenOS.png}
+	\caption{Diseño general de HelenOS y organización multiservidor basada en microkernel (fuente: \citep{helenos_wiki_tutorial}).}
+	\label{fig:Interfaz HelenOS}
+\end{figure}
+\subsection{Políticas de planificación y manejo de recursos}
+HelenOS emplea un planificador preventivo con retroalimentación de prioridad, compatible con sistemas SMP y diseñado para ser altamente
+portable. Actualmente soporta múltiples arquitecturas de hardware, incluyendo x86, x86-64, IA64, SPARC, PowerPC, ARM y MIPS. Aunque no 
+está orientado al uso general debido a la falta de aplicaciones de usuario, ya cuenta con subsistemas esenciales como sistemas de archivos
+y redes TCP/IP. El planificador utiliza múltiples colas de ejecución por procesador y una política round-robin con prioridades, incorporando
+migración de hilos para balancear la carga. El diseño del sistema sigue el principio de separación entre mecanismos y políticas, delegando
+estas últimas al espacio de usuario. \citep{decky2010road,helenos_design_2006}.
 
-\section{Flujo de ejecución básico}
 
+\subsection{Flujo de ejecución básico}
+El flujo de ejecución de HelenOS inicia con el bootloader, que carga el microkernel en memoria y transfiere el control. El kernel
+inicializa el hardware esencial y habilita la planificación, la gestión de memoria y el IPC. Luego se lanzan los servidores fundamentales
+en espacio de usuario, como controladores de dispositivos, VFS y servicios de nombres. Finalmente, se inicia el shell Bdsh, y el sistema
+opera mediante múltiples tareas independientes que se comunican de forma concurrente a través del IPC del microkernel.\citep{helenos_design_2006}
