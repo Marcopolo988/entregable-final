@@ -47,7 +47,6 @@ especiales encargados de migrar hilos entre procesadores cuando es necesario. La
 Aunque el diseño del micronúcleo prioriza la simplicidad conceptual, HelenOS hace uso de mecanismos modernos y eficientes, incluyendo árboles AVL y B+, tablas hash, un asignador
 de memoria SLAB, diversas primitivas de sincronización interna y técnicas de bloqueo de grano fino, con el objetivo de mejorar el rendimiento y la escalabilidad del sistema.
 
-\subsubsection*{Subsistemas fundamentales del kernel}
 El microkernel de HelenOS está organizado en subsistemas especializados que gestionan los recursos esenciales del sistema. 
 La Tabla \ref{tab:subsistemas-kernel} presenta los tres pilares fundamentales: programación, gestión de memoria y comunicación 
 entre procesos, detallando los mecanismos clave que implementa cada uno \citep{helenos_design_2006,decky2010road}.
@@ -100,7 +99,6 @@ Cada sistema de archivos se ejecuta como un servicio independiente en espacio de
 operaciones y ofrece compatibilidad con POSIX mediante una capa de adaptación. Su diseño se divide en un frontend, que gestiona solicitudes simples, y un backend, que
 delega las operaciones al servidor de archivos correspondiente. \citep{zarevucky2012improved,cimerman2025raid}.
 
-\subsubsection*{Arquitectura del subsistema de archivos}
 La Tabla \ref{tab:vfs-componentes} detalla los componentes principales del subsistema de archivos de HelenOS, incluyendo el servidor VFS central, 
 los servidores de sistemas de archivos específicos y los componentes de soporte que permiten la gestión unificada del almacenamiento en un entorno 
 multiservidor \citep{zarevucky2012improved,helenos_design_2006}.
