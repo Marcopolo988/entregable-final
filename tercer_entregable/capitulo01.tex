@@ -1,15 +1,51 @@
 \chapter{ Justificación de la propuesta seleccionada}
 
-gaga \citep{theseus2023}
 \section{Nombre del sistema operativo base}
-
+El nombre del sistema operativo es ``HelenOS''. El proyecto fue iniciado por Jakub Jermar en 2001, en ese momento era un código independiente que funcionaba como kernel para IA-32. \citep{decky2015application}
 
 \section{Objetivos del proyecto original}
-
+Según \citep{decky2015application}, este sistema operativo, tiene un enfoque educativo y experimental. Además, busca servir como una plataforma para la investigación y desarrollo de sistemas operativos de propósito general, teniendo muy en cuenta la fiabilidad y practicidad.
+De manera más organizada se muestran los siguientes objetivos principales en forma de lista:
+\begin{itemize}
+    \item Proporcionar una plataforma real para el estudio y la experimentación en el diseño de sistemas operativos modernos.
+    \item Implementar una arquitectura microkernel funcional que priorice la seguridad, la modularidad y la fiabilidad.
+    \item Facilitar el aprendizaje de conceptos fundamentales de sistemas operativos mediante una implementación clara, accesible y extensible.
+    \item Servir como base para el desarrollo incremental de servicios del sistema, controladores de dispositivos y mecanismos de comunicación entre procesos.
+\end{itemize}
 
 \section{Arquitectura y enfoque técnico}
-
+El sistema operativo HelenOS se basó en la arquitectura multiserver de microkernel, donde el kernel de encarga de tareas muy específicas y principal; y los servicios son implementados en componentes aislados e independientes, en esta caso implementados con permisos de modo privilegiado para el kernel y modo usuario los demás \citep{decky2015application}.
+A continuación, se incluye una vista general de la arquitectura/organización del kernel de HelenOS:
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/overviewKernelArchitecturaHelenOS.jpg}
+\centering
+\caption{Vista general de la arquitectura/organización del kernel de HelenOS.}
+\label{fig:overviewKernelArchitecturaHelenOS}
+\centering
+\small Fuente: Obtenido de \citep{decky2015application} \textit{Application of Software Components in Operating System Design}.
+\end{figure}
+El enfoque técnico es claro, al haber iniciado como un proyecto educativo independiente, se enfoca en la simplicidad y claridad del código, manteniendo la modularidad respectiva a su arquitectura elegida. En principio, HelenOS fue diseñado para la arquitectura IA-32, pero al día de hoy soporta múltiples arquitecturas, incluyendo x86-64, ARM y MIPS \citep{decky2015application}.
 
 \section{Nivel de complejidad y adecuación al contexto educativo}
+Considerando un entorno de estudio de sistemas operativos, justamente el entorno en el que se propicia esta
+investigación, con conocimientos previos de C y fundamentos de sistemas operativos; es un proyecto con un 
+nivel de complejidad media, más que nada por su tamaño (es extenso), además del uso de servicios mediante IPC
+y también considerar que la arquitectura multiserver, que implica microkernel, no es la más sencilla tampoco.
+Y eso sin contar la diversidad de arquitecturas soportadas, lo cual añade dificultad al análisis del código. 
+
+Se escogió este sistema operativo debido a que es bastante adecuado para este contexto educativo, ya que su 
+diseño modular permite su análisis en forma progresiva, empezando por componentes básicos y terminando en los 
+más complejos. Además, otras de las razones para decir que es adecuado son su excelente estructura del código, 
+la separación clarísima de sus componentes y, con más peso para este proyecto, su escalabilidad ya que podemos 
+implementar de manera gradual más componentes de manera que se integre al sistema completamente.
 
 \section{Comunidad, documentacion y soporte disponible}
+Se consideró en la categorización del nivel de complejidad que, la accesibilidad para los estudiantes es
+bastante buena, ya que el proyecto es open source y cuenta con una gran cantidad de estudios en torno a él.
+Sin embargo, una consideración a tomar en cuenta es que, aunque HelenOS dispone de documentación formal 
+(guías, artículos, documentación generada), esta puede no detallar cada componente del sistema operativo con 
+la exhaustividad que otros sistemas operativos grandes ofrecen (por ejemplo un libro completo o wiki 
+ultra-detallada), aunque esta deficiencia se ve compensada por la claridad del código y la estructura modular, 
+sobre su comunidad es importante decir que no es muy grande, sin embargo es activamente estudiado a nivel académico 
+y cuenta con foros donde se puede solicitar ayuda, en algunas redes sociales como reddit y GitHub.
