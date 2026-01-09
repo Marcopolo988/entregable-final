@@ -45,7 +45,7 @@ de prioridad y el procesador actual, desde donde son seleccionados para su ejecu
 especiales encargados de migrar hilos entre procesadores cuando es necesario. La planificación se basa en una política de round-robin aplicada sobre múltiples colas de prioridad.
 
 Aunque el diseño del micronúcleo prioriza la simplicidad conceptual, HelenOS hace uso de mecanismos modernos y eficientes, incluyendo árboles AVL y B+, tablas hash, un asignador
-de memoria SLAB, diversas primitivas de sincronización interna y técnicas de bloqueo de grano fino, con el objetivo de mejorar el rendimiento y la escalabilidad del sistema.
+de memoria SLAB, con el objetivo de mejorar el rendimiento y la escalabilidad del sistema.
 
 El microkernel de HelenOS está organizado en subsistemas especializados que gestionan los recursos esenciales del sistema. 
 La Tabla \ref{tab:subsistemas-kernel} presenta los tres pilares fundamentales: programación, gestión de memoria y comunicación 
@@ -55,13 +55,13 @@ entre procesos, detallando los mecanismos clave que implementa cada uno \citep{h
 \caption{Subsistemas fundamentales del kernel de HelenOS}
 \label{tab:subsistemas-kernel} \\
 \hline
-\textbf{Subsistema del Kernel} & \textbf{Entidades / Mecanismos Clave} & \textbf{Función Principal} \\ \hline
+\textbf{Subsistema del Kernel} & \textbf{Entidades / Mecanismos} & \textbf{Función Principal} \\ \hline
 \endfirsthead
 
 \multicolumn{3}{c}%
 {{\tablename\ \thetable{} -- continuación de la página anterior}} \\
 \hline
-\textbf{Subsistema del Kernel} & \textbf{Entidades / Mecanismos Clave} & \textbf{Función Principal} \\ \hline
+\textbf{Subsistema del Kernel} & \textbf{Entidades / Mecanismos} & \textbf{Función Principal} \\ \hline
 \endhead
 
 \endfoot
@@ -69,11 +69,11 @@ entre procesos, detallando los mecanismos clave que implementa cada uno \citep{h
 \hline
 \endlastfoot
 
-Programación (Scheduling) & Hilos del kernel, hilos de usuario, pseudohilos (fibrillas), tareas, colas de ejecución multinivel, planificador round-robin con prioridades, balanceo de carga entre CPUs & Gestionar la ejecución concurrente de múltiples tareas, asignar tiempo de CPU según prioridad, mantener el equilibrio de carga entre procesadores y soportar sistemas multiprocesador (SMP) \\ \hline
+Programación (Scheduling) & Hilos del kernel, hilos de usuario, pseudohilos, tareas, colas de ejecución multinivel, planificador round-robin con prioridades, balanceo de carga entre CPUs & Gestionar la ejecución concurrente de múltiples tareas, asignar tiempo de CPU según prioridad, mantener el equilibrio de carga entre procesadores y soportar sistemas multiprocesador (SMP) \\ \hline
 
-Gestión de Memoria & Asignador de bloques (SLAB allocator), asignador de tramas físicas (buddy system), traducción virtual-física mediante tablas de páginas, espacios de direcciones aislados, áreas de memoria compartidas, coherencia TLB & Asignar memoria dinámica al kernel y a las tareas de usuario, traducir direcciones virtuales a físicas, aislar espacios de memoria entre procesos, gestionar memoria compartida y garantizar coherencia en sistemas multiprocesador \\ \hline
+Gestión de Memoria & Asignador de bloques, asignador de tramas físicas (buddy system), traducción virtual-física mediante tablas de páginas, espacios de direcciones aislados, áreas de memoria compartidas, coherencia TLB & Asignar memoria dinámica al kernel y a las tareas de usuario, traducir direcciones virtuales a físicas, aislar espacios de memoria entre procesos, gestionar memoria compartida y garantizar coherencia en sistemas multiprocesador \\ \hline
 
-Comunicación entre Procesos (IPC) & Mensajes cortos síncronos/asíncronos, \textit{teléfonos} (canales de comunicación), llamadas asíncronas con callbacks, cuadros de respuesta (answer boxes), áreas de memoria compartida para datos grandes & Permitir la comunicación eficiente y segura entre tareas del sistema en un entorno microkernel multiservidor, facilitando el paso de mensajes y compartición de datos entre procesos aislados \\ \hline
+Comunicación entre Procesos (IPC) & Mensajes cortos síncronos/asíncronos, \textit{teléfonos} (canales de comunicación), llamadas asíncronas con callbacks, cuadros de respuesta, áreas de memoria compartida para datos grandes & Permitir la comunicación eficiente y segura entre tareas del sistema en un entorno microkernel multiservidor, facilitando el paso de mensajes y compartición de datos entre procesos aislados \\ \hline
 
 \end{longtable}
 
@@ -86,11 +86,93 @@ construidos sobre una API del núcleo y utilizados por el marco asíncrono. Debi
 Las tareas intercambian información mediante mensajes breves o mediante el compartimiento de memoria para datos de mayor tamaño. El modelo de IPC permite múltiples conexiones
 simultáneas entre tareas. \citep{helenos_design_2006,jindrak2022cpp}.
 
+\subsubsection*{Aspectos esenciales del manejo de hilos y tareas}
+
+\textbf{Hilos y tareas.}
+Una tarea representa un espacio de direcciones y recursos, mientras que el hilo es la unidad básica de ejecución. Cada tarea se inicia con un hilo principal creado por el cargador y registrado en el planificador del sistema.
+
+\textbf{Planificación y ejecución.}
+Los hilos pasan por los estados \emph{listo}, \emph{ejecutando} y \emph{bloqueado}. El planificador selecciona el hilo a ejecutar según prioridades y políticas de reparto justo, utilizando preempción basada en temporizadores.
+
+\textbf{Conmutación de contexto.}
+La conmutación de contexto ocurre ante interrupciones, llamadas al sistema o bloqueos. El kernel guarda el estado del hilo actual y restaura el del siguiente, permitiendo la ejecución concurrente eficiente.
+
+\textbf{Comunicación entre procesos (IPC).}
+El modelo cliente--servidor permite la comunicación mediante mensajes y, cuando es necesario, memoria compartida. El cliente envía una solicitud, el servidor la procesa y responde, desbloqueando al cliente.
+
+\textbf{Creación y finalización.}
+El cargador valida y carga el ejecutable, crea las áreas de memoria y el hilo inicial. Al finalizar un hilo, se liberan sus recursos; si la tarea queda sin hilos activos, el sistema libera completamente la tarea.
+
+
 \subsection{Gestión de memoria}
 HelenOS garantiza la coherencia entre la TLB y las tablas de páginas mediante un mecanismo de invalidación coordinada en sistemas multiprocesador. La gestión de memoria del
 sistema cubre la asignación para el kernel, la traducción de direcciones virtuales y la administración de espacios de direcciones. Cada espacio de direcciones está compuesto
 por áreas disjuntas respaldadas por memoria anónima, imágenes ejecutables o memoria física. El sistema permite compartir áreas entre tareas, pero no soporta intercambio de
 páginas con almacenamiento secundario. \citep{helenos_design_2006}
+\begin{longtable}{|p{4.2cm}|p{7.3cm}|p{4.2cm}|}
+\caption{Aspectos esenciales de la gestión de memoria en HelenOS}
+\label{tab:gestion-memoria-resumen} \\
+\hline
+\textbf{Componente} & \textbf{Descripción técnica} & \textbf{Objetivo / Beneficio} \\
+\hline
+\endfirsthead
+
+\multicolumn{3}{c}{{\tablename\ \thetable{} -- continuación}} \\
+\hline
+\textbf{Componente} & \textbf{Descripción técnica} & \textbf{Objetivo / Beneficio} \\
+\hline
+\endhead
+
+\endfoot
+\hline
+\endlastfoot
+
+Zonas y marcos físicos &
+La memoria física se organiza en zonas contiguas que contienen marcos (\textit{frames}) administrados mediante un \textit{buddy system}. Cada zona mantiene contadores de marcos libres y ocupados. &
+Permitir asignación eficiente de bloques contiguos y escalabilidad del sistema de memoria física. \\
+\hline
+
+Asignador de marcos &
+El \textit{frame allocator} gestiona solicitudes de memoria en potencias de dos dentro de una zona, utilizando el \textit{buddy allocator}. &
+Asignación rápida y consistente de memoria física alineada. \\
+\hline
+
+Slab allocator &
+Asignador de objetos pequeños y frecuentes basado en \textit{slabs} y \textit{magazines} por CPU, evitando bloqueos globales. &
+Reducir fragmentación interna y mejorar concurrencia y rendimiento del kernel. \\
+\hline
+
+Memoria virtual &
+HelenOS implementa paginación mediante una interfaz genérica que soporta tablas jerárquicas o tabla hash global según la arquitectura. &
+Abstraer diferencias de hardware y unificar la gestión de memoria virtual. \\
+\hline
+
+Espacios de direcciones &
+Cada tarea posee un espacio de direcciones con áreas disjuntas organizadas en un B+\,tree; el kernel se mapea fuera de estas áreas. &
+Aislamiento entre procesos y gestión independiente de regiones de memoria. \\
+\hline
+
+Áreas y permisos &
+Las áreas definen regiones homogéneas con permisos de lectura, escritura y ejecución, evitando combinaciones inseguras como WRITE+EXEC. &
+Control fino de protección y seguridad de memoria. \\
+\hline
+
+Compartición de memoria &
+Las áreas pueden compartirse entre tareas mediante estructuras de referencia y un \textit{pagemap} común. &
+Comunicación eficiente entre procesos sin duplicar memoria. \\
+\hline
+
+Page faults &
+Los fallos de página se resuelven bajo demanda según el backend del área (anónima, ELF o física). &
+Carga diferida de memoria y uso eficiente de recursos. \\
+\hline
+
+TLB y coherencia &
+El sistema mantiene coherencia entre TLB y tablas de páginas mediante invalidaciones y \textit{TLB shootdown} en sistemas SMP. &
+Garantizar consistencia y corrección en ejecución multiprocesador. \\
+\hline
+
+\end{longtable}
 
 \subsection{Sistema de archivos}
 El sistema operativo HelenOS tiene soporte de sistemas de archivos basado en un Sistema de Archivos Virtual (VFS), que actúa como una capa de abstracción entre las
@@ -103,32 +185,59 @@ La Tabla \ref{tab:vfs-componentes} detalla los componentes principales del subsi
 los servidores de sistemas de archivos específicos y los componentes de soporte que permiten la gestión unificada del almacenamiento en un entorno 
 multiservidor \citep{zarevucky2012improved,helenos_design_2006}.
 
-\begin{table}[H]
-\centering
-\caption{Componentes del subsistema de archivos en HelenOS}
-\label{tab:vfs-componentes}
-\begin{tabular}{|p{4.5cm}|p{4.5cm}|p{5.5cm}|}
+\begin{longtable}{|p{4.2cm}|p{4.2cm}|p{6.1cm}|}
+\caption{Componentes principales del subsistema de archivos en HelenOS}
+\label{tab:vfs-componentes} \\
 \hline
-\textbf{Componente} & \textbf{Ubicación / Tipo} & \textbf{Función Principal} \\ \hline
+\textbf{Componente} & \textbf{Ubicación / Tipo} & \textbf{Función principal} \\
+\hline
+\endfirsthead
 
-VFS (Virtual File System) & Servidor central en espacio de usuario & Proporciona una interfaz unificada para acceder a múltiples sistemas de archivos, gestiona el árbol de directorios global y coordina las operaciones entre aplicaciones y servidores de archivos específicos \\ \hline
+\multicolumn{3}{c}{{\tablename\ \thetable{} -- continuación}} \\
+\hline
+\textbf{Componente} & \textbf{Ubicación / Tipo} & \textbf{Función principal} \\
+\hline
+\endhead
 
-Servidores de FS específicos (FAT, ext2, tmpfs, etc.) & Servidores independientes en espacio de usuario & Implementan la lógica específica de cada tipo de sistema de archivos, manejan estructuras en disco (inodos, bloques, metadatos) y se comunican con VFS mediante IPC \\ \hline
+\endfoot
+\hline
+\endlastfoot
 
-Frontend VFS & Módulo del servidor VFS & Procesa solicitudes simples de aplicaciones (open, read, write, close), mantiene tablas de archivos abiertos y gestiona descriptores de archivo \\ \hline
+VFS (Virtual File System) &
+Servidor central en espacio de usuario &
+Proporciona una interfaz unificada de acceso a archivos, mantiene el árbol global de directorios y coordina las operaciones entre aplicaciones y servidores de sistemas de archivos \\ \hline
 
-Backend VFS & Módulo del servidor VFS & Delega operaciones complejas al servidor de archivos apropiado, traduce llamadas genéricas a operaciones específicas del FS y coordina el acceso concurrente \\ \hline
+Servidores de sistemas de archivos &
+Servidores independientes en espacio de usuario &
+Implementan la lógica específica de cada sistema de archivos (FAT, ext2, tmpfs, etc.) y gestionan estructuras y metadatos del almacenamiento \\ \hline
 
-Capa de compatibilidad POSIX & Biblioteca libc en espacio de usuario & Traduce llamadas POSIX estándar a la API nativa de HelenOS, permitiendo portabilidad de aplicaciones Unix/Linux \\ \hline
+Frontend VFS &
+Módulo interno del servidor VFS &
+Atiende llamadas básicas de aplicaciones (\texttt{open}, \texttt{read}, \texttt{write}, \texttt{close}), administra descriptores y controla archivos abiertos \\ \hline
 
-Controladores de dispositivos de bloque & Servidores de dispositivos en espacio de usuario & Gestionan el acceso de bajo nivel a discos duros, SSDs y dispositivos de almacenamiento, proporcionan interfaz de bloques al VFS \\ \hline
+Backend VFS &
+Módulo interno del servidor VFS &
+Traduce operaciones genéricas en solicitudes específicas del sistema de archivos correspondiente y coordina el acceso concurrente \\ \hline
 
-Caché de bloques & Componente del servidor VFS & Optimiza el rendimiento almacenando bloques frecuentemente accedidos en memoria, reduce accesos a disco y mejora la latencia de operaciones \\ \hline
+Capa de compatibilidad POSIX &
+Biblioteca \texttt{libc} en espacio de usuario &
+Mapea llamadas POSIX estándar a la API nativa de HelenOS, permitiendo la portabilidad de aplicaciones \\ \hline
 
-Registro de montaje & Base de datos del VFS & Mantiene información de sistemas de archivos montados, puntos de montaje y servidores responsables de cada volumen \\ \hline
+Controladores de dispositivos de bloque &
+Servidores de dispositivos en espacio de usuario &
+Gestionan el acceso a dispositivos de almacenamiento y proporcionan una interfaz de bloques al VFS \\ \hline
 
-\end{tabular}
-\end{table}
+Caché de bloques &
+Componente del servidor VFS &
+Optimiza el rendimiento almacenando bloques frecuentes en memoria y reduciendo accesos a disco \\ \hline
+
+Registro de montajes &
+Estructura interna del VFS &
+Mantiene información de volúmenes montados, puntos de montaje y servidores responsables \\ \hline
+
+\end{longtable}
+
+
 
 Este diseño modular permite que cada sistema de archivos funcione como un proceso independiente, mejorando la estabilidad del sistema ya que 
 un fallo en un servidor de archivos no afecta al VFS ni a otros sistemas de archivos montados.
@@ -158,32 +267,66 @@ planificación de hilos, la distribución de carga en sistemas multiprocesador y
 el principio de separación entre mecanismos (implementados en el kernel) y políticas (definidas en espacio de usuario) 
 \citep{decky2010road,helenos_design_2006}.
 
-\begin{table}[H]
-\centering
+\begin{longtable}{|p{4.1cm}|p{5.1cm}|p{5.8cm}|}
 \caption{Políticas de planificación y manejo de recursos en HelenOS}
-\label{tab:planificacion-recursos}
-\begin{tabular}{|p{4cm}|p{5cm}|p{5.5cm}|}
+\label{tab:planificacion-recursos} \\
 \hline
-\textbf{Política / Mecanismo} & \textbf{Descripción Técnica} & \textbf{Objetivo y Beneficios} \\ \hline
+\textbf{Política / Mecanismo} & \textbf{Descripción técnica (resumen)} & \textbf{Objetivo / Beneficios} \\
+\hline
+\endfirsthead
 
-Planificación Round-Robin con Prioridades & Cada procesador mantiene múltiples colas de ejecución organizadas por niveles de prioridad. Los hilos rotan en su cola con quantum de tiempo fijo, pero las colas de mayor prioridad se atienden primero & Garantizar tiempo de CPU equitativo entre hilos de la misma prioridad mientras se respetan las diferencias de importancia. Previene inanición de tareas de baja prioridad mediante envejecimiento \\ \hline
+\multicolumn{3}{c}{{\tablename\ \thetable{} -- continuación}} \\
+\hline
+\textbf{Política / Mecanismo} & \textbf{Descripción técnica (resumen)} & \textbf{Objetivo / Beneficios} \\
+\hline
+\endhead
 
-Afinidad de CPU y Migración de Hilos & El planificador prefiere ejecutar hilos en el mismo procesador donde corrieron previamente (afinidad de caché). Hilos especializados del kernel monitorean la carga y migran hilos entre CPUs cuando detectan desbalance & Mejorar rendimiento aprovechando cachés L1/L2 calientes. Distribuir carga uniformemente en sistemas SMP/multicore para maximizar utilización de todos los procesadores \\ \hline
+\endfoot
+\hline
+\endlastfoot
 
-Planificación Preventiva (Preemptive) & El kernel puede interrumpir la ejecución de un hilo en cualquier momento mediante interrupciones de temporizador. No depende de que los hilos cedan voluntariamente la CPU & Garantizar respuesta interactiva del sistema y evitar que un hilo monopolice el procesador. Esencial para sistemas multiprogramados y tiempo compartido \\ \hline
+Planificación Round--Robin con prioridades &
+Cada CPU mantiene colas por nivel de prioridad; los hilos rotan con quantum fijo y se atienden primero las colas de mayor prioridad. &
+Reparto justo de CPU y respeto de prioridades, evitando inanición mediante envejecimiento. \\
+\hline
 
-Retroalimentación de Prioridad & Las prioridades de los hilos se ajustan dinámicamente según su comportamiento: hilos que consumen mucho CPU ven reducida su prioridad, mientras que hilos interactivos o de I/O mantienen prioridad alta & Optimizar balance entre throughput y tiempo de respuesta. Favorece aplicaciones interactivas sin penalizar trabajos computacionales intensivos \\ \hline
+Afinidad de CPU y migración de hilos &
+El planificador favorece la ejecución en la CPU previa para aprovechar caché; hilos del kernel migran hilos si detectan desbalance de carga. &
+Mejor rendimiento por localidad de caché y balance eficiente en sistemas SMP. \\
+\hline
 
-Separación Mecanismo-Política & El kernel implementa mecanismos genéricos de planificación (colas, cambio de contexto, prioridades). Las políticas específicas (qué prioridad asignar, cuándo ajustarla) se definen en espacio de usuario mediante servidores de política & Flexibilidad para experimentar con diferentes estrategias sin modificar el kernel. Permite políticas especializadas por aplicación o dominio \\ \hline
+Planificación preventiva &
+El kernel interrumpe hilos mediante temporizador, sin depender de cesión voluntaria de CPU. &
+Evitar monopolio del procesador y garantizar buena respuesta interactiva. \\
+\hline
 
-Quantum de Tiempo Adaptativo & La duración del quantum (tiempo asignado antes de desalojar un hilo) puede variar según la carga del sistema y tipo de hilo. Hilos de I/O pueden tener quantums más cortos para mejor respuesta & Balancear overhead de cambio de contexto vs. tiempo de respuesta. Quantums largos reducen overhead pero penalizan interactividad \\ \hline
+Retroalimentación de prioridad &
+La prioridad se ajusta dinámicamente según uso de CPU e I/O del hilo. &
+Equilibrar throughput y tiempo de respuesta, favoreciendo tareas interactivas. \\
+\hline
 
-Gestión de Recursos por Servidor & Recursos como memoria, descriptores de archivo y conexiones IPC son gestionados por servidores dedicados en espacio de usuario. El kernel solo proporciona primitivas básicas & Aislamiento y modularidad: fallas en gestión de recursos no comprometen el kernel. Facilita políticas de cuotas y límites por aplicación \\ \hline
+Separación mecanismo--política &
+El kernel implementa mecanismos genéricos; las políticas se definen en servidores de usuario. &
+Flexibilidad y experimentación sin modificar el kernel. \\
+\hline
 
-Soporte Multiprocesador (SMP) & El planificador está diseñado para sistemas con múltiples procesadores físicos. Utiliza estructuras de datos con bloqueo fino para minimizar contención entre CPUs & Escalar rendimiento en hardware multicore/multiprocesador. Maximizar paralelismo real sin cuellos de botella en el planificador \\ \hline
+Quantum de tiempo adaptativo &
+La duración del quantum varía según tipo de hilo y carga del sistema. &
+Reducir overhead de cambio de contexto y mejorar interactividad. \\
+\hline
 
-\end{tabular}
-\end{table}
+Gestión de recursos por servidor &
+La gestión de memoria, archivos e IPC se delega a servidores de usuario. &
+Aislamiento, modularidad y tolerancia a fallos. \\
+\hline
+
+Soporte multiprocesador (SMP) &
+El planificador usa estructuras con bloqueo fino para múltiples CPUs. &
+Escalabilidad y máximo paralelismo en hardware multicore. \\
+\hline
+
+\end{longtable}
+
 
 Esta arquitectura flexible permite que HelenOS se adapte a diferentes cargas de trabajo y objetivos de rendimiento sin requerir 
 recompilación del kernel, manteniendo la simplicidad conceptual del microkernel.
