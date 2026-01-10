@@ -247,3 +247,79 @@ Para profundizar en el estudio de HelenOS, se recomiendan los siguientes recurso
     
     \item \textbf{Canal IRC:} \texttt{\#helenos} en \texttt{irc.libera.chat} -- Canal de comunicación con la comunidad de desarrolladores.
 \end{itemize}
+
+\section*{Anexo H: Guía de operación paso a paso}
+
+Este manual detalla el flujo de interacción con HelenOS 0.14.1 (Aladar) desde el encendido hasta el apagado del sistema.
+
+\subsection*{Paso 1: Selección en el gestor de arranque}
+Al iniciar la máquina virtual en QEMU, la primera pantalla que aparece es el menú de GNU GRUB. El usuario debe utilizar las teclas de dirección para resaltar la opción \texttt{HelenOS 0.14.1} y presionar la tecla \textit{Enter} para iniciar el proceso de carga del núcleo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{figures/01_grub_menu.jpeg}
+    \caption{Menú de inicio de GRUB para la selección del sistema operativo.}
+\end{figure}
+
+\subsection*{Paso 2: Carga de módulos del sistema}
+Una vez seleccionado el sistema, se muestra una pantalla de carga de archivos en modo texto. En este punto, el cargador transfiere a la memoria RAM el kernel, los servidores básicos (como el sistema de archivos virtual y el servidor de nombres) y la imagen del disco RAM inicial (\texttt{initrd.img}).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{figures/02_loading_modules.jpeg}
+    \caption{Proceso de carga de módulos y componentes esenciales en memoria.}
+\end{figure}
+
+\subsection*{Paso 3: Inicialización y log de servicios}
+Posteriormente, el sistema comienza a levantar los servicios de hardware y red. El usuario podrá observar en tiempo real cómo se configuran las conexiones de red (DHCP), los dispositivos de entrada (teclado y ratón) y el servidor de video, finalizando con el inicio del servicio de sonido \texttt{hound} y el servicio de pantalla.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{figures/03_service_log.jpeg}
+    \caption{Registro de inicialización de servicios de red y hardware.}
+\end{figure}
+
+\subsection*{Paso 4: Ingreso al entorno de escritorio}
+Tras la carga de servicios, aparece el escritorio gráfico azul. Por defecto, se abre una ventana de Terminal que da la bienvenida al usuario con información sobre la arquitectura (amd64) y la revisión del sistema. En esta ventana se puede escribir el comando \texttt{help} para ver consejos de uso.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{figures/04_desktop_main.jpeg}
+    \caption{Pantalla de bienvenida y terminal inicial en el escritorio.}
+\end{figure}
+
+\subsection*{Paso 5: Monitoreo y herramientas de cálculo}
+El usuario puede interactuar con múltiples aplicaciones simultáneamente. En la captura se observa el uso del comando \texttt{top} en la terminal para monitorear el consumo de recursos (CPU y memoria) y el estado de las tareas. Al mismo tiempo, se puede utilizar la \textit{Calculator} para realizar operaciones matemáticas básicas.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{figures/05_top_calculator.jpeg}
+    \caption{Uso simultáneo del monitor de sistema (top) y la calculadora gráfica.}
+\end{figure}
+
+\subsection*{Paso 6: Entretenimiento y juegos}
+HelenOS incluye aplicaciones de ocio como el juego Tetris, ejecutable dentro de la terminal. Para jugar, el usuario utiliza las teclas \texttt{j} (izquierda), \texttt{l} (derecha) y \texttt{k} (rotar). El sistema permite mantener el monitor de procesos activo en segundo plano mientras se juega.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{figures/06_tetris_game.jpeg}
+    \caption{Ejecución del juego Tetris en el entorno de consola.}
+\end{figure}
+
+\subsection*{Paso 7: Gestión de ventanas y Barber Pole}
+La barra de tareas inferior permite alternar entre las diferentes ventanas abiertas. Además de las herramientas de texto, se puede ejecutar la aplicación \textit{Barber Pole}, que muestra una animación gráfica constante. La interfaz soporta el cambio de foco y la organización de múltiples utilidades en pantalla.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{figures/07_barber_pole.jpeg}
+    \caption{Interfaz con múltiples tareas activas y demostración gráfica.}
+\end{figure}
+
+\subsection*{Paso 8: Apagado del sistema}
+Para finalizar la sesión, el usuario debe hacer clic en el botón \textit{Start} y seleccionar la opción de salida. Se desplegará una ventana de confirmación denominada \textit{Shutdown}, donde se puede elegir entre \textit{Power off} para apagar completamente la máquina virtual o \textit{Restart} para reiniciar el sistema operativo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{figures/08_shutdown_dialog.jpeg}
+    \caption{Menú de confirmación para el apagado seguro o reinicio.}
+\end{figure}
