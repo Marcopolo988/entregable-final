@@ -27,7 +27,13 @@ Pordemos observar el diagrama de arquitectura general en la Figura \ref{fig:Arqu
 	\caption{Diseño general de HelenOS y organización multiservidor basada en microkernel (fuente: \citep{helenos_design_2006}).}
 	\label{fig:Arquitectura HelenOS}
 \end{figure}
-
+Además de compararla con otras:
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{figures/comparacionArquitecturas.png}
+	\caption{Comparación con arquitecturas clásicas (fuente: \citep{decky2015application}).}
+	\label{fig:comparacionArquitecturas}
+\end{figure}
 \section{Componentes a implementar}
 
 \subsection{Bootloader}
@@ -250,9 +256,18 @@ través del API de HelenOS, actuando el shell como un cliente de dichos servicio
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth]{figures/Diseño de HelenOS.png}
-	\caption{Diseño general de HelenOS y organización multiservidor basada en microkernel (fuente: \citep{helenos_wiki_tutorial}).}
+	\caption{Interfaz de usuario de HelenOS (fuente: \citep{helenos_wiki_tutorial}).}
 	\label{fig:Interfaz HelenOS}
 \end{figure}
+
+Internamente está implementado y organizado de la siguiente manera:
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{figures/arbolUsers.png}
+	\caption{Espacio lógico de usuario en HelenOS (fuente: \citep{decky2015application}).}
+	\label{fig:Espacio lógico de usuario en HelenOS}
+\end{figure}
+
 \subsection{Políticas de planificación y manejo de recursos}
 HelenOS emplea un planificador preventivo con retroalimentación de prioridad, compatible con sistemas SMP y diseñado para ser altamente
 portable. Actualmente soporta múltiples arquitecturas de hardware, incluyendo x86, x86-64, IA64, SPARC, PowerPC, ARM y MIPS. Aunque no 
@@ -330,6 +345,14 @@ Escalabilidad y máximo paralelismo en hardware multicore. \\
 
 Esta arquitectura flexible permite que HelenOS se adapte a diferentes cargas de trabajo y objetivos de rendimiento sin requerir 
 recompilación del kernel, manteniendo la simplicidad conceptual del microkernel.
+
+HelenOS también posee una manera para gestionar los drivers en forma de árbol tal como se muestra en la siguiente figura:
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{figures/arbolDriversHelenOS.jpg}
+	\caption{Arbol de drivers de HelenOS (fuente: \citep{decky2015application}).}
+	\label{fig:Arbol drivers HelenOS}
+\end{figure}
 
 
 \subsection{Flujo de ejecución básico}

@@ -158,8 +158,8 @@ El script \texttt{tools/ew.py} incluido en el repositorio de HelenOS automatiza 
 
 \section*{Anexo E: Diagrama de comunicación IPC}
 
-El mecanismo de comunicación entre procesos (IPC) en HelenOS se basa en el modelo de paso de mensajes mediante ``teléfonos'' (phones) y ``answerboxes''. El flujo típico de una llamada IPC es el siguiente:
-
+El mecanismo de comunicación entre procesos (IPC) en HelenOS se basa en el modelo de paso de mensajes mediante ``teléfonos'' (phones) y ``answerboxes''. 
+El flujo típico de una llamada IPC es el siguiente:
 \begin{enumerate}
     \item El cliente obtiene un teléfono (phone) conectado al servidor destino.
     \item El cliente envía un mensaje a través del teléfono usando \texttt{ipc\_call\_sync()} o \texttt{ipc\_call\_async()}.
@@ -170,6 +170,13 @@ El mecanismo de comunicación entre procesos (IPC) en HelenOS se basa en el mode
     \item El kernel entrega la respuesta al cliente, desbloqueándolo si la llamada era síncrona.
 \end{enumerate}
 
+El siguiente diagrama ejemplifica este flujo de comunicación:
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{figures/diagramatecnicoE.png}
+	\caption{Diagrama de comunicación IPC en HelenOS (fuente: \citep{helenos_wiki_tutorial}).}
+	\label{fig:Comunicación IPC}
+\end{figure}
 Para transferencias de datos mayores, HelenOS utiliza áreas de memoria compartida que se establecen mediante llamadas específicas del IPC, evitando así la copia excesiva de datos entre espacios de direcciones.
 
 \section*{Anexo F: Glosario de términos}

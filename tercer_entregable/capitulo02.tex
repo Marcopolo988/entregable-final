@@ -14,3 +14,10 @@ Sobre el proceso de compilación de HelenOS, este se encuentra bastante bien doc
 
 \section{Escalabilidad para futuras extensiones}
 Como se mencionó en la sección de modularidad, la escalabilidad es uno de los beneficios más claros de HelenOS, permite la incorporación de nuevas funcionalidades/componentes de manera progresiva sin afectar a la estabilidad del kernel. Sin embargo, se debe tener en cuenta que para estas incorporaciones se debe seguir aplicando la arquitectura microkernel multiserver, además de la filosofía modular y los diferentes mecanismos para mantenerla, tales como la comunicación entre processo (IPC) en caso se necesite. Esta alta capacidad de escalabilidad es un argumento muy fuerte a favor de HelenOS para ser escogido como caso de estudio para este proyecto en específico.
+Este hecho quedó demostrado en una gráfica hecha por los autores para medir la cantidad de líneas de código que tuvo el proyecto a lo largo del tiempo:
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{figures/cantidadcodigo.png}
+	\caption{Escalabilidad en líneas de código del respositorio de HelenOS a lo largo del tiempo (fuente: \citep{decky2015application}).}
+	\label{fig:Cantidad de código HelenOS}
+\end{figure}
