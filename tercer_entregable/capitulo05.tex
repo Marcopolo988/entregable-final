@@ -1,12 +1,53 @@
 \chapter{Herramientas y entorno de desarrollo}
 
+HelenOS es un sistema operativo académico multiescala (``microkernel + servidores de usuario'') desarrollado en C. Prácticamente todo el código nativo del sistema (núcleo y servidores) está escrito en C, que es el único lenguaje con un \textit{runtime} nativo completo. 
+Algunos componentes muy bajo nivel (por ejemplo, el arranque o manejadores de interrupción) se implementan en ensamblador específico de cada CPU para manejar detalles de hardware. según \citep{jindrak2022cpp} pag. 3.
 
 \section{Lenguaje(s) de programación alto y bajo nivel}
+No existe aún un soporte nativo oficial para C++ o lenguajes de alto nivel: actualmente C++ y Python sólo pueden usarse vía puertos experimentales \citep{jindrak2022cpp}.
+
+Como indica la documentación, HelenOS ``puede ejecutar casi exclusivamente programas en C... tiene soporte para C++ y Python, pero con limitaciones significativas, por lo que estos lenguajes no se usan ampliamente''. 
+Adicionalmente, se han emprendido proyectos de investigación para portar lenguajes modernos; por ejemplo, recientes trabajos buscan habilitar Rust en HelenOS \citep{volf2025rust}.
+
+Pordemos observar Interfaz gráfica de HelenOS (versión 0.11.2) la Figura \ref{fig:interfaz_usuario}.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{figures/interfaz_usuario.png}
+	\caption{Interfaz de usuario. (fuente: \citep{helenos_wiki_tutorial}).}
+	\label{fig:interfaz_usuario}
+\end{figure}
+
+HelenOS dispone de línea de comandos y un GUI propio para usuario. Como resume la documentación oficial: ``Tenemos línea de comandos y una interfaz gráfica sencilla que permiten manipular archivos, ejecutar aplicaciones y montar sistemas de ficheros... se 
+puede jugar al Tetris o editar archivos de texto... También tenemos redes y se ha portado software de desarrollo (GCC, binutils, Python, pcc)'' \citep{helenos_wiki_tutorial}. En la figura se ve una sesión típica en HelenOS con varias aplicaciones gráficas. En suma, el entorno de usuario 
+de HelenOS incluye utilidades básicas (editor de texto, gestor de archivos, demos gráficas, etc.) soportadas directamente por el sistema, pero el núcleo del OS y sus servidores están escritos casi exclusivamente en C (con ayuda puntual de ensamblador).
 
 \section{Compilador cruzado}
+Para compilar HelenOS se requiere un \textit{toolchain} cruzado específico. El proyecto provee un script (\texttt{tools/toolchain.sh}) que genera un compilador cross-GCC para cada arquitectura objetivo (amd64, ia32, arm, etc.) (\citep{decky2015application}). 
+No se puede usar el compilador nativo del host para construir HelenOS: la documentación advierte claramente que el compilador del sistema 
+produce binarios incompatibles y que sólo se ha probado HelenOS con la versión de GCC instalada por el script (\citep{decky2010road}). El compilador por defecto de HelenOS es GCC ; 
+existe parche \texttt{-helenos-} para hacer el compilador ``nativo'' de HelenOS. Alternativamente, HelenOS puede construirse con Clang en arquitecturas comunes (ia32, amd64), aunque Clang no cubre todas las plataformas soportadas. 
+el flujo de desarrollo típico es usar GCC (o Clang en X86) como \textit{cross-compiler}, generado por el script oficial, para compilar bibliotecas y aplicaciones HelenOS.
 
 \section{Emulador }
+Las pruebas y demostraciones de HelenOS se realizan sobre todo en máquinas virtuales/emuladores. 
+El Emulador recomendado y más usado es QEMU: existe una página dedicada (``Running HelenOS in QEMU'') que explica cómo lanzar imágenes de HelenOS en QEMU. 
+El proyecto incluye un script de envoltura (\texttt{tools/ew.py}) que inicia automáticamente QEMU con las opciones adecuadas para la configuración elegida. 
+La documentación de HelenOS menciona explícitamente ``RunningInVirtualBox''con instrucciones para VirtualBox, 
+y en el repositorio se proporciona incluso un ejemplo de configuración de VMware (archivo \texttt{.vmx}) para arrancar HelenOS en VMware Workstation. \citep{helenos_wiki_tutorial}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{figures/qemu.png}
+	\caption{QEMU es un emulador y virtualizador de código abierto capaz de realizar emulación de sistema completo en múltiples arquitecturas (fuente: \citep{helenos_wiki_tutorial}).}
+	\label{fig:qemu}
+\end{figure}
 
 \section{Control de versiones (Git)}
+HelenOS gestiona su código fuente con Git. Los repositorios oficiales están alojados en GitHub: el repositorio principal (\citep{helenos_wiki_tutorial}) contiene el OS base, y existen repositorios adicionales (``harbours'' para software portado y ``ci'' para integración continua). 
+En sus FAQ oficiales se indica que ``el código fuente de HelenOS actualmente se gestiona con Git... los desarrolladores son alentados a alojar sus ramas en GitHub (github.com/HelenOS)''. Antes se usaba Bazaar, pero hoy todo se ha migrado a Git. Como buenas prácticas, el equipo mantiene ramas bien 
+identificadas (por versión/milestone) y usa revisiones por \textit{pull requests} en GitHub.
 
 \section{Editor o entorno de desarrollo}
+La documentación oficial de HelenOS no prescribe un editor de código o IDE específico para desarrollar el sistema. En la práctica, los desarrolladores utilizan los editores y entornos comunes de la comunidad (C/C++) que prefieran. Muchos usan editores de texto avanzados (por ejemplo, \textbf{Vim o Emacs})
+o entornos gráficos como \textbf{Visual Studio Code} con extensiones de C/C++, dado que HelenOS es esencialmente software en C. HelenOS incluye también un editor básico propio (comando \texttt{edit} en la consola), pero para escribir el código fuente generalmente se prefiere un editor externo 
+con resaltado de sintaxis y soporte de \textit{debugging}. En ausencia de una recomendación oficial, cada desarrollador escoge su entorno de desarrollo habitual (p.ej. VS Code, CLion, Vim/Neovim, etc.) para editar el código de HelenOS.

@@ -3,10 +3,207 @@
 
 \section{Cronograma tentativo por componentes.}
 
+\begin{landscape}
+\begin{center}
+
+\renewcommand{\arraystretch}{1.35}
+
+\begin{longtable}{|c|p{4cm}|p{12cm}|p{5cm}|}
+\caption{Cronograma Tentativo de Implementación (5 Semanas)}\label{tab:cronograma} \\
+
+\hline
+\textbf{Semana} & \textbf{Actividades Principales} & \textbf{Descripción Ampliada} & \textbf{Componentes Involucrados} \\
+\hline
+\endfirsthead
+
+\hline
+\textbf{Semana} & \textbf{Actividades Principales} & \textbf{Descripción Ampliada} & \textbf{Componentes Involucrados} \\
+\hline
+\endhead
+
+\hline
+\multicolumn{4}{r}{Continúa en la siguiente página} \\
+\endfoot
+
+\hline
+\endlastfoot
+
+% ---- Semana 1 ----
+\textbf{1} &
+Instalación y configuración del entorno; Compilación inicial; Validación en QEMU &
+Se prepara el entorno completo de desarrollo de HelenOS. Esto incluye la instalación del compilador cruzado, la descarga del código fuente oficial, la verificación del sistema de construcción y la ejecución de la primera compilación completa. Finalmente, se valida la ejecución del sistema en QEMU, lo cual asegura que el pipeline de desarrollo esté correctamente configurado desde el inicio. &
+Toolchain; Build System; QEMU \\
+\hline
+
+% ---- Semana 2 ----
+\textbf{2} &
+Revisión de arquitectura; Selección de módulos; Diseño técnico preliminar &
+Se analiza la arquitectura de HelenOS, centrada en su microkernel, el mecanismo IPC, la administración de tareas y el VFS modular. Se seleccionan los módulos a implementar o adaptar, y se elabora el diseño técnico inicial, incluyendo diagramas de interacción, estructuras de datos, interfaces y puntos de extensión que permitirán una integración progresiva durante las siguientes semanas. &
+Kernel; IPC; VFS; Diseño de Software \\
+\hline
+
+% ---- Semana 3 ----
+\textbf{3} &
+Implementación del Kernel; Scheduler básico; Pruebas unitarias &
+Se desarrollan las funciones internas del kernel relacionadas con la administración de procesos y se implementa un scheduler básico (por ejemplo, Round Robin). En paralelo, se construyen pruebas unitarias para validar módulos críticos, con el fin de garantizar estabilidad previa a la integración con otros subsistemas. &
+Kernel; Gestión de Procesos; Pruebas Unitarias \\
+\hline
+
+% ---- Semana 4 ----
+\textbf{4} &
+Implementación del VFS mínimo; Integración Kernel–VFS; Comandos en Shell &
+Se implementa un sistema de archivos virtual mínimo para soportar operaciones esenciales como lectura, escritura y montaje. Luego, se integran las llamadas del kernel hacia el VFS para permitir interacción estructurada con el almacenamiento. Finalmente, se incorporan comandos básicos en la shell del sistema para validar directamente el funcionamiento del VFS dentro de HelenOS. &
+VFS; Kernel; Shell \\
+\hline
+
+% ---- Semana 5 ----
+\textbf{5} &
+Pruebas de integración; Pruebas de regresión; Documentación final &
+Se ejecutan pruebas integrales del sistema operativo, evaluando la interoperabilidad entre componentes, el manejo de recursos, la estabilidad del scheduler y la consistencia del sistema de archivos. Además, se realizan pruebas de regresión contra versiones previas para asegurar que no existan degradaciones. La semana culmina con la elaboración completa de la documentación 
+técnica final, incluyendo diagramas, decisiones arquitectónicas, resultados de pruebas y conclusiones. &
+Todos los componentes \\
+\hline
+
+\end{longtable}
+
+\end{center}
+\end{landscape}
+
 
 \section{Estrategia de pruebas y validación.}
 
+\subsection*{1. Pruebas unitarias}
+
+\begin{itemize}
+    \item Funciones pequeñas del kernel (manejo de listas, asignación de estructuras, validaciones internas).
+    \item Validación manual y automática mediante logs y assert estructurado.
+\end{itemize}
+
+\subsection*{2. Pruebas de integración}
+
+\begin{itemize}
+    \item Validación del pipeline completo: arranque del kernel $\rightarrow$ inicialización $\rightarrow$ scheduler $\rightarrow$ VFS $\rightarrow$ CLI.
+    \item Empleo de scripts en QEMU para generar escenarios repetibles.
+\end{itemize}
+
+\subsection*{3. Pruebas de regresión}
+
+\begin{itemize}
+    \item Comparación entre versiones para asegurar que cambios recientes \textbf{no rompen el arranque} ni la CLI.
+\end{itemize}
+
+\subsection*{4. Pruebas de experiencia de usuario}
+
+\begin{itemize}
+    \item Comandos del shell, manejo de errores, mensajes coherentes, terminación de procesos inválidos.
+\end{itemize}
 
 \section{Posibles riesgos y cómo mitigarlos.}
 
+\begin{landscape}
+\renewcommand{\arraystretch}{1.35}
+
+\begin{longtable}{|p{3.5cm}|p{5.2cm}|p{1.6cm}|p{2cm}|p{5cm}|p{5cm}|}
+\caption{Tabla de riesgos ampliada} \\
+\hline
+\textbf{Riesgo} &
+\textbf{Descripción técnica} &
+\textbf{Impacto} &
+\textbf{Probabilidad} &
+\textbf{Mitigación} &
+\textbf{Indicadores tempranos} \\
+\hline
+\endfirsthead
+
+\hline
+\textbf{Riesgo} &
+\textbf{Descripción técnica} &
+\textbf{Impacto} &
+\textbf{Probabilidad} &
+\textbf{Mitigación} &
+\textbf{Indicadores tempranos} \\
+\hline
+\endhead
+
+\hline
+\multicolumn{6}{r}{Continúa en la siguiente página} \\
+\endfoot
+
+\hline
+\endlastfoot
+
+Fallas al construir el toolchain &
+GCC o Binutils no compilan correctamente para la arquitectura objetivo &
+Alto &
+Media &
+Usar script oficial, verificar dependencias, versiones compatibles &
+Errores de linking o binarios incompletos \\
+\hline
+
+Kernel panic o page faults &
+Punteros nulos, errores en manejo de interrupciones o memoria &
+Alto &
+Alta &
+Validar punteros, usar logs del kernel en cada módulo &
+Reinicios inesperados, caída antes del scheduler \\
+\hline
+
+Integración inconsistente entre módulos &
+Cambios en kernel que afectan procesos o VFS &
+Alto &
+Media &
+Commits pequeños, pruebas continuas, interfaces claras &
+Errores en syscalls o creación de procesos \\
+\hline
+
+Falta de documentación interna &
+Dificultad para comprender estructuras internas del kernel &
+Medio &
+Alta &
+Revisar código fuente, analizar diagramas, revisar tesis y reportes &
+Bloqueos del equipo en análisis \\
+\hline
+
+Baja performance o deadlocks &
+Scheduler inestable o locks mal implementados &
+Alto &
+Media &
+Scheduler simple, no agregar complejidad innecesaria &
+Procesos que no terminan o se congelan \\
+\hline
+
+Escasez de tiempo del equipo &
+Tareas que se extienden más de lo esperado &
+Medio &
+Media &
+Dividir roles, Scrum semanal, priorizar mínimo viable &
+Retraso desde semana 2 en adelante \\
+\hline
+
+VFS incompleto o inconsistente &
+Lectura/escritura fallida o tabla de inodos incorrecta &
+Medio &
+Media &
+Implementación incremental, validar caso mínimo &
+Archivos que no montan, errores en CLI \\
+\hline
+
+Problemas de compatibilidad en QEMU &
+Emulación inconsistente o flags incorrectos &
+Bajo &
+Media &
+Usar parámetros probados, logs seriales &
+QEMU se congela o no muestra consola \\
+\hline
+
+Sobrecarga en el kernel educativo &
+Añadir funciones innecesarias o fuera del alcance &
+Medio &
+Baja &
+Control estricto del alcance (scope) &
+Demoras y complejidad excesiva \\
+\hline
+
+\end{longtable}
+\end{landscape}
 
