@@ -1,1 +1,242 @@
 \chapter*{Anexos}
+\addcontentsline{toc}{chapter}{Anexos}
+
+\section*{Anexo A: Comandos básicos de HelenOS}
+
+La siguiente tabla presenta los comandos más utilizados en el shell Bdsh de HelenOS, que permiten la interacción básica con el sistema operativo:
+
+\begin{longtable}{|p{3.5cm}|p{11cm}|}
+\caption{Comandos básicos del shell Bdsh en HelenOS} \\
+\hline
+\textbf{Comando} & \textbf{Descripción} \\
+\hline
+\endfirsthead
+
+\hline
+\textbf{Comando} & \textbf{Descripción} \\
+\hline
+\endhead
+
+\hline
+\endfoot
+
+\hline
+\endlastfoot
+
+\texttt{help} & Muestra la lista de comandos disponibles en el shell. \\
+\hline
+\texttt{ls [directorio]} & Lista el contenido del directorio especificado o del directorio actual. \\
+\hline
+\texttt{cd <directorio>} & Cambia al directorio especificado. \\
+\hline
+\texttt{pwd} & Muestra la ruta del directorio de trabajo actual. \\
+\hline
+\texttt{cat <archivo>} & Muestra el contenido de un archivo de texto. \\
+\hline
+\texttt{cp <origen> <destino>} & Copia un archivo del origen al destino. \\
+\hline
+\texttt{rm <archivo>} & Elimina el archivo especificado. \\
+\hline
+\texttt{mkdir <directorio>} & Crea un nuevo directorio. \\
+\hline
+\texttt{mount <tipo> <dispositivo> <punto>} & Monta un sistema de archivos. \\
+\hline
+\texttt{unmount <punto>} & Desmonta un sistema de archivos. \\
+\hline
+\texttt{tasks} & Muestra las tareas actualmente en ejecución. \\
+\hline
+\texttt{threads} & Muestra los hilos del sistema. \\
+\hline
+\texttt{kill <id>} & Termina la tarea con el identificador especificado. \\
+\hline
+\texttt{klog} & Muestra el registro del kernel. \\
+\hline
+\texttt{exit} & Finaliza la sesión del shell. \\
+\hline
+
+\end{longtable}
+
+\section*{Anexo B: Estructura del código fuente de HelenOS}
+
+El repositorio de HelenOS sigue una organización jerárquica que refleja su arquitectura modular. A continuación se describe la estructura principal de directorios:
+
+\begin{longtable}{|p{4cm}|p{10.5cm}|}
+\caption{Estructura de directorios del código fuente de HelenOS} \\
+\hline
+\textbf{Directorio} & \textbf{Contenido} \\
+\hline
+\endfirsthead
+
+\hline
+\textbf{Directorio} & \textbf{Contenido} \\
+\hline
+\endhead
+
+\hline
+\endfoot
+
+\hline
+\endlastfoot
+
+\texttt{/kernel} & Código fuente del micronúcleo, incluyendo subsistemas de memoria, planificación, IPC y soporte de arquitecturas. \\
+\hline
+\texttt{/kernel/arch} & Código específico de cada arquitectura soportada (ia32, amd64, arm32, mips32, etc.). \\
+\hline
+\texttt{/kernel/generic} & Código genérico del kernel independiente de la arquitectura. \\
+\hline
+\texttt{/uspace} & Código de espacio de usuario, incluyendo bibliotecas, servidores y aplicaciones. \\
+\hline
+\texttt{/uspace/lib} & Bibliotecas de espacio de usuario (libc, libposix, libui, etc.). \\
+\hline
+\texttt{/uspace/srv} & Servidores del sistema (vfs, devman, locsrv, ns, etc.). \\
+\hline
+\texttt{/uspace/drv} & Controladores de dispositivos en espacio de usuario. \\
+\hline
+\texttt{/uspace/app} & Aplicaciones de usuario (bdsh, edit, tetris, etc.). \\
+\hline
+\texttt{/boot} & Archivos de arranque y configuración del bootloader. \\
+\hline
+\texttt{/tools} & Scripts y herramientas de desarrollo (toolchain.sh, ew.py, etc.). \\
+\hline
+\texttt{/abi} & Definiciones de la interfaz binaria de aplicaciones. \\
+\hline
+
+\end{longtable}
+
+\section*{Anexo C: Proceso de compilación de HelenOS}
+
+El proceso de compilación de HelenOS requiere seguir una serie de pasos específicos. A continuación se presenta la secuencia de comandos necesaria para compilar el sistema desde el código fuente:
+
+\begin{verbatim}
+# 1. Clonar el repositorio
+git clone https://github.com/HelenOS/helenos.git
+cd helenos
+
+# 2. Instalar dependencias (Ubuntu/Debian)
+sudo apt-get install build-essential wget texinfo flex bison \
+    libgmp-dev libmpfr-dev libmpc-dev python3 python3-yaml \
+    genisoimage xorriso
+
+# 3. Compilar el toolchain cruzado (ejemplo para amd64)
+cd tools
+./toolchain.sh amd64
+cd ..
+
+# 4. Configurar la arquitectura objetivo
+make PROFILE=amd64
+
+# 5. Compilar HelenOS
+make
+
+# 6. Ejecutar en QEMU
+tools/ew.py
+\end{verbatim}
+
+El script \texttt{toolchain.sh} descarga, configura y compila automáticamente las versiones compatibles de GCC y Binutils para la arquitectura seleccionada. Este proceso puede tomar varios minutos dependiendo de la capacidad del sistema.
+
+\section*{Anexo D: Configuración de QEMU para HelenOS}
+
+Para ejecutar HelenOS en el emulador QEMU, se pueden utilizar las siguientes opciones de configuración:
+
+\begin{verbatim}
+# Ejecución básica para arquitectura amd64
+qemu-system-x86_64 -cdrom image.iso -m 256M -enable-kvm
+
+# Ejecución con salida serial para depuración
+qemu-system-x86_64 -cdrom image.iso -m 256M \
+    -serial stdio -enable-kvm
+
+# Ejecución con red habilitada
+qemu-system-x86_64 -cdrom image.iso -m 256M \
+    -netdev user,id=net0 -device e1000,netdev=net0
+
+# Ejecución con múltiples CPUs (SMP)
+qemu-system-x86_64 -cdrom image.iso -m 512M -smp 4
+\end{verbatim}
+
+El script \texttt{tools/ew.py} incluido en el repositorio de HelenOS automatiza la configuración de QEMU con los parámetros óptimos para cada arquitectura.
+
+\section*{Anexo E: Diagrama de comunicación IPC}
+
+El mecanismo de comunicación entre procesos (IPC) en HelenOS se basa en el modelo de paso de mensajes mediante ``teléfonos'' (phones) y ``answerboxes''. El flujo típico de una llamada IPC es el siguiente:
+
+\begin{enumerate}
+    \item El cliente obtiene un teléfono (phone) conectado al servidor destino.
+    \item El cliente envía un mensaje a través del teléfono usando \texttt{ipc\_call\_sync()} o \texttt{ipc\_call\_async()}.
+    \item El kernel copia el mensaje corto (hasta 5 argumentos de 64 bits) al answerbox del servidor.
+    \item El servidor recibe el mensaje mediante \texttt{ipc\_wait\_for\_call()}.
+    \item El servidor procesa la solicitud y prepara la respuesta.
+    \item El servidor envía la respuesta usando \texttt{ipc\_answer()}.
+    \item El kernel entrega la respuesta al cliente, desbloqueándolo si la llamada era síncrona.
+\end{enumerate}
+
+Para transferencias de datos mayores, HelenOS utiliza áreas de memoria compartida que se establecen mediante llamadas específicas del IPC, evitando así la copia excesiva de datos entre espacios de direcciones.
+
+\section*{Anexo F: Glosario de términos}
+
+\begin{longtable}{|p{4cm}|p{10.5cm}|}
+\caption{Glosario de términos técnicos} \\
+\hline
+\textbf{Término} & \textbf{Definición} \\
+\hline
+\endfirsthead
+
+\hline
+\textbf{Término} & \textbf{Definición} \\
+\hline
+\endhead
+
+\hline
+\endfoot
+
+\hline
+\endlastfoot
+
+\textbf{Microkernel} & Arquitectura de sistema operativo donde el núcleo implementa solo funciones esenciales (IPC, planificación básica, gestión de memoria), delegando servicios a procesos de usuario. \\
+\hline
+\textbf{Multiservidor} & Diseño donde los servicios del sistema operativo se ejecutan como servidores independientes en espacio de usuario. \\
+\hline
+\textbf{IPC} & Inter-Process Communication. Mecanismo que permite la comunicación entre procesos aislados. \\
+\hline
+\textbf{VFS} & Virtual File System. Capa de abstracción que unifica el acceso a diferentes sistemas de archivos. \\
+\hline
+\textbf{Tarea (Task)} & Unidad de recursos en HelenOS que agrupa hilos y define un espacio de direcciones. \\
+\hline
+\textbf{Hilo (Thread)} & Unidad básica de ejecución en el kernel de HelenOS. \\
+\hline
+\textbf{Fibrilla (Fibril)} & Hilo cooperativo en espacio de usuario, implementado sobre la API del kernel. \\
+\hline
+\textbf{SLAB allocator} & Algoritmo de asignación de memoria optimizado para objetos pequeños y frecuentes. \\
+\hline
+\textbf{Buddy system} & Algoritmo de asignación de memoria física que maneja bloques de tamaño potencia de dos. \\
+\hline
+\textbf{TLB} & Translation Lookaside Buffer. Caché de traducciones de direcciones virtuales a físicas. \\
+\hline
+\textbf{SMP} & Symmetric Multiprocessing. Arquitectura con múltiples procesadores compartiendo memoria. \\
+\hline
+\textbf{Teléfono (Phone)} & Abstracción de HelenOS para representar un canal de comunicación IPC hacia un servidor. \\
+\hline
+\textbf{Cross-compiler} & Compilador que genera código para una plataforma diferente a la que se ejecuta. \\
+\hline
+\textbf{Bdsh} & Brain-dead shell. Shell de línea de comandos por defecto en HelenOS. \\
+\hline
+
+\end{longtable}
+
+\section*{Anexo G: Recursos adicionales}
+
+Para profundizar en el estudio de HelenOS, se recomiendan los siguientes recursos:
+
+\begin{itemize}
+    \item \textbf{Sitio web oficial:} \url{https://www.helenos.org/} -- Contiene documentación, noticias y enlaces a recursos del proyecto.
+    
+    \item \textbf{Repositorio GitHub:} \url{https://github.com/HelenOS/helenos} -- Código fuente completo del sistema operativo.
+    
+    \item \textbf{Wiki del proyecto:} \url{https://www.helenos.org/wiki/} -- Tutoriales, guías de desarrollo y documentación técnica.
+    
+    \item \textbf{Documentación de diseño:} \url{https://www.helenos.org/doc/design.pdf} -- Documento técnico sobre la arquitectura y diseño del sistema.
+    
+    \item \textbf{Tesis relacionadas:} El repositorio de la Universidad Charles de Praga contiene múltiples tesis de grado y maestría sobre diferentes aspectos de HelenOS.
+    
+    \item \textbf{Canal IRC:} \texttt{\#helenos} en \texttt{irc.libera.chat} -- Canal de comunicación con la comunidad de desarrolladores.
+\end{itemize}

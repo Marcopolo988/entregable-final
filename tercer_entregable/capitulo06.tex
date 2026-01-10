@@ -8,21 +8,22 @@
 
 \renewcommand{\arraystretch}{1.35}
 
-\begin{longtable}{|c|p{4cm}|p{12cm}|p{5cm}|}
-\caption{Cronograma Tentativo de Implementación (5 Semanas)}\label{tab:cronograma} \\
+% Cronograma reorganizado con fechas específicas del 24/11/2025 al 02/01/2026
+\begin{longtable}{|c|p{2.5cm}|p{4cm}|p{11cm}|p{4.5cm}|}
+\caption{Cronograma de Implementación (24 Nov 2025 -- 02 Ene 2026)}\label{tab:cronograma} \\
 
 \hline
-\textbf{Semana} & \textbf{Actividades Principales} & \textbf{Descripción Ampliada} & \textbf{Componentes Involucrados} \\
+\textbf{Semana} & \textbf{Fechas} & \textbf{Actividades Principales} & \textbf{Descripción Ampliada} & \textbf{Componentes Involucrados} \\
 \hline
 \endfirsthead
 
 \hline
-\textbf{Semana} & \textbf{Actividades Principales} & \textbf{Descripción Ampliada} & \textbf{Componentes Involucrados} \\
+\textbf{Semana} & \textbf{Fechas} & \textbf{Actividades Principales} & \textbf{Descripción Ampliada} & \textbf{Componentes Involucrados} \\
 \hline
 \endhead
 
 \hline
-\multicolumn{4}{r}{Continúa en la siguiente página} \\
+\multicolumn{5}{r}{Continúa en la siguiente página} \\
 \endfoot
 
 \hline
@@ -30,44 +31,102 @@
 
 % ---- Semana 1 ----
 \textbf{1} &
-Instalación y configuración del entorno; Compilación inicial; Validación en QEMU &
-Se prepara el entorno completo de desarrollo de HelenOS. Esto incluye la instalación del compilador cruzado, la descarga del código fuente oficial, la verificación del sistema de construcción y la ejecución de la primera compilación completa. Finalmente, se valida la ejecución del sistema en QEMU, lo cual asegura que el pipeline de desarrollo esté correctamente configurado desde el inicio. &
+24 Nov -- 30 Nov &
+Configuración del entorno de desarrollo y compilación inicial &
+Se prepara el entorno completo de desarrollo de HelenOS. Esto incluye la instalación del compilador cruzado (toolchain), la descarga del código fuente oficial desde el repositorio, la verificación del sistema de construcción (Meson/Ninja) y la ejecución de la primera compilación completa. Se valida la ejecución del sistema en QEMU para asegurar que el pipeline de desarrollo esté correctamente configurado. &
 Toolchain; Build System; QEMU \\
 \hline
 
 % ---- Semana 2 ----
 \textbf{2} &
-Revisión de arquitectura; Selección de módulos; Diseño técnico preliminar &
-Se analiza la arquitectura de HelenOS, centrada en su microkernel, el mecanismo IPC, la administración de tareas y el VFS modular. Se seleccionan los módulos a implementar o adaptar, y se elabora el diseño técnico inicial, incluyendo diagramas de interacción, estructuras de datos, interfaces y puntos de extensión que permitirán una integración progresiva durante las siguientes semanas. &
-Kernel; IPC; VFS; Diseño de Software \\
+01 Dic -- 07 Dic &
+Análisis de arquitectura y diseño técnico &
+Se realiza un análisis profundo de la arquitectura de HelenOS, estudiando su microkernel, el mecanismo IPC (Inter-Process Communication), la administración de tareas y el VFS modular. Se identifican los módulos clave a estudiar y se elabora el diseño técnico inicial, incluyendo diagramas de interacción y estructuras de datos que servirán como guía para las siguientes fases. &
+Kernel; IPC; VFS; Documentación \\
 \hline
 
 % ---- Semana 3 ----
 \textbf{3} &
-Implementación del Kernel; Scheduler básico; Pruebas unitarias &
-Se desarrollan las funciones internas del kernel relacionadas con la administración de procesos y se implementa un scheduler básico (por ejemplo, Round Robin). En paralelo, se construyen pruebas unitarias para validar módulos críticos, con el fin de garantizar estabilidad previa a la integración con otros subsistemas. &
-Kernel; Gestión de Procesos; Pruebas Unitarias \\
+08 Dic -- 14 Dic &
+Estudio del Kernel y gestión de procesos &
+Se estudian las funciones internas del kernel relacionadas con la administración de procesos, incluyendo el scheduler (planificador de tareas). Se analizan las estructuras de control de procesos (PCB), los estados de los procesos y los mecanismos de cambio de contexto. Se documentan los hallazgos y se realizan pruebas de comprensión mediante la modificación de parámetros básicos. &
+Kernel; Scheduler; Gestión de Procesos \\
 \hline
 
 % ---- Semana 4 ----
 \textbf{4} &
-Implementación del VFS mínimo; Integración Kernel–VFS; Comandos en Shell &
-Se implementa un sistema de archivos virtual mínimo para soportar operaciones esenciales como lectura, escritura y montaje. Luego, se integran las llamadas del kernel hacia el VFS para permitir interacción estructurada con el almacenamiento. Finalmente, se incorporan comandos básicos en la shell del sistema para validar directamente el funcionamiento del VFS dentro de HelenOS. &
-VFS; Kernel; Shell \\
+15 Dic -- 21 Dic &
+Estudio del VFS y sistema de archivos &
+Se analiza el Sistema de Archivos Virtual (VFS) de HelenOS, comprendiendo las operaciones esenciales como lectura, escritura, apertura y cierre de archivos. Se estudia la integración entre el kernel y el VFS, así como los comandos disponibles en la shell (Bdsh) para interactuar con el sistema de archivos. Se documenta la arquitectura del VFS y sus interfaces. &
+VFS; Kernel; Shell (Bdsh) \\
 \hline
 
 % ---- Semana 5 ----
 \textbf{5} &
-Pruebas de integración; Pruebas de regresión; Documentación final &
-Se ejecutan pruebas integrales del sistema operativo, evaluando la interoperabilidad entre componentes, el manejo de recursos, la estabilidad del scheduler y la consistencia del sistema de archivos. Además, se realizan pruebas de regresión contra versiones previas para asegurar que no existan degradaciones. La semana culmina con la elaboración completa de la documentación 
-técnica final, incluyendo diagramas, decisiones arquitectónicas, resultados de pruebas y conclusiones. &
-Todos los componentes \\
+22 Dic -- 28 Dic &
+Pruebas de integración y validación del sistema &
+Se ejecutan pruebas integrales del sistema operativo en el emulador QEMU, evaluando la interoperabilidad entre componentes, el manejo de recursos, la estabilidad del scheduler y la consistencia del sistema de archivos. Se documentan los resultados de las pruebas y se identifican posibles mejoras o áreas de interés para trabajo futuro. &
+Todos los componentes; QEMU \\
+\hline
+
+% ---- Semana 6 ----
+\textbf{6} &
+29 Dic -- 02 Ene &
+Documentación final y conclusiones &
+Se elabora la documentación técnica final del proyecto, incluyendo diagramas actualizados, decisiones arquitectónicas analizadas, resultados de pruebas y conclusiones del estudio. Se prepara la presentación del trabajo y se revisan todos los entregables para asegurar coherencia y completitud del documento final. &
+Documentación; Presentación \\
 \hline
 
 \end{longtable}
 
 \end{center}
 \end{landscape}
+
+% Diagrama de Gantt visual
+\section{Diagrama de Gantt}
+
+\begin{center}
+\begin{tikzpicture}[x=0.4cm, y=0.8cm]
+    % Encabezados de semanas
+    \foreach \i/\fecha in {1/24-30 Nov, 2/01-07 Dic, 3/08-14 Dic, 4/15-21 Dic, 5/22-28 Dic, 6/29 Dic-02 Ene} {
+        \node[font=\footnotesize\bfseries] at (\i*4-2, 7.5) {S\i};
+        \node[font=\tiny] at (\i*4-2, 7) {\fecha};
+    }
+    
+    % Líneas de separación de semanas
+    \foreach \i in {0,4,8,12,16,20,24} {
+        \draw[gray!30] (\i, 0) -- (\i, 6.5);
+    }
+    
+    % Actividades (barras)
+    % Semana 1: Configuración del entorno
+    \fill[blue!60] (0, 5.5) rectangle (4, 6);
+    \node[font=\tiny, anchor=west] at (0.2, 5.75) {Configuración entorno};
+    
+    % Semana 2: Análisis de arquitectura
+    \fill[green!60] (4, 4.5) rectangle (8, 5);
+    \node[font=\tiny, anchor=west] at (4.2, 4.75) {Análisis arquitectura};
+    
+    % Semana 3: Estudio del Kernel
+    \fill[orange!60] (8, 3.5) rectangle (12, 4);
+    \node[font=\tiny, anchor=west] at (8.2, 3.75) {Estudio Kernel};
+    
+    % Semana 4: Estudio VFS
+    \fill[red!60] (12, 2.5) rectangle (16, 3);
+    \node[font=\tiny, anchor=west] at (12.2, 2.75) {Estudio VFS};
+    
+    % Semana 5: Pruebas de integración
+    \fill[purple!60] (16, 1.5) rectangle (20, 2);
+    \node[font=\tiny, anchor=west] at (16.2, 1.75) {Pruebas integración};
+    
+    % Semana 6: Documentación final
+    \fill[cyan!60] (20, 0.5) rectangle (24, 1);
+    \node[font=\tiny, anchor=west] at (20.2, 0.75) {Documentación final};
+    
+    % Marco
+    \draw[thick] (0, 0) rectangle (24, 6.5);
+\end{tikzpicture}
+\end{center}
 
 
 \section{Estrategia de pruebas y validación.}
@@ -206,4 +265,3 @@ Demoras y complejidad excesiva \\
 
 \end{longtable}
 \end{landscape}
-

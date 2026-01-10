@@ -1,1 +1,51 @@
 \chapter*{Introducción}
+\addcontentsline{toc}{chapter}{Introducción}
+
+El desarrollo de sistemas operativos constituye uno de los campos más desafiantes y fundamentales de la ingeniería informática. Comprender los mecanismos internos que permiten la gestión de recursos de hardware, la planificación de procesos, la administración de memoria y la comunicación entre componentes del sistema resulta esencial para cualquier profesional que aspire a dominar los fundamentos de la computación moderna. En este contexto, el presente proyecto de investigación tiene como propósito analizar, diseñar y documentar la construcción de un sistema operativo desde cero, utilizando como caso de estudio el sistema operativo HelenOS.
+
+HelenOS es un sistema operativo de código abierto basado en una arquitectura de micronúcleo multiservidor, desarrollado originalmente por Jakub Jermář en 2001 como un proyecto educativo y de investigación \citep{decky2015application}. A diferencia de los sistemas monolíticos tradicionales, HelenOS implementa un diseño donde el núcleo se mantiene mínimo y las funcionalidades del sistema se ejecutan como servidores independientes en espacio de usuario, comunicándose mediante mecanismos de paso de mensajes (IPC). Esta arquitectura modular facilita el análisis individual de cada componente y permite una comprensión más clara de las interacciones entre los diferentes subsistemas.
+
+\section*{Motivación}
+
+La elección de HelenOS como base para este proyecto responde a múltiples factores técnicos y pedagógicos. En primer lugar, su arquitectura microkernel multiservidor representa un enfoque moderno y elegante para el diseño de sistemas operativos, permitiendo aislar fallos y mantener una separación clara entre mecanismos y políticas. En segundo lugar, el proyecto cuenta con una base de código bien estructurada, documentación accesible y una comunidad académica activa que lo respalda. Finalmente, HelenOS ofrece un equilibrio adecuado entre complejidad y accesibilidad, siendo más sofisticado que sistemas puramente didácticos como Minix o xv6, pero sin alcanzar la complejidad abrumadora de sistemas de producción como Linux.
+
+\section*{Objetivos del proyecto}
+
+El objetivo general de este proyecto es realizar un análisis integral del sistema operativo HelenOS, comprendiendo su diseño arquitectónico, sus componentes principales y los mecanismos que lo hacen funcionar. Los objetivos específicos incluyen:
+
+\begin{itemize}
+    \item Justificar técnica y pedagógicamente la selección de HelenOS como sistema operativo base para el estudio.
+    \item Analizar la arquitectura microkernel multiservidor y sus ventajas frente a diseños monolíticos.
+    \item Estudiar los componentes fundamentales del sistema: bootloader, kernel, gestión de procesos, gestión de memoria, sistema de archivos e interfaz de usuario.
+    \item Documentar las herramientas y el entorno de desarrollo necesarios para trabajar con HelenOS.
+    \item Elaborar un plan de implementación que permita extender o modificar componentes del sistema de manera progresiva.
+    \item Identificar riesgos potenciales y estrategias de mitigación para el desarrollo del proyecto.
+\end{itemize}
+
+\section*{Alcance}
+
+El presente documento abarca el análisis teórico y el diseño conceptual del sistema operativo HelenOS, correspondiente a la tercera unidad del curso de Sistemas Operativos. El alcance incluye la documentación detallada de la arquitectura del sistema, sus componentes principales, las políticas de planificación y manejo de recursos, así como la planificación para una implementación incremental. No se incluye en este documento la implementación completa del código, sino el análisis y diseño que servirán como base para futuras etapas de desarrollo.
+
+\section*{Estructura del documento}
+
+El documento está organizado en seis capítulos principales, además de esta introducción:
+
+\begin{itemize}
+    \item \textbf{Capítulo 1: Justificación de la propuesta seleccionada.} Presenta los argumentos que fundamentan la elección de HelenOS, incluyendo sus objetivos originales, arquitectura, nivel de complejidad y recursos de soporte disponibles.
+    
+    \item \textbf{Capítulo 2: Argumentos técnicos.} Detalla las características técnicas que hacen de HelenOS una opción viable, como su compatibilidad con herramientas de desarrollo, modularidad, lenguaje de programación y facilidad de compilación.
+    
+    \item \textbf{Capítulo 3: Argumentos pedagógicos.} Expone las razones educativas para elegir HelenOS, destacando su claridad conceptual, potencial para el aprendizaje activo y relación con los contenidos del curso.
+    
+    \item \textbf{Capítulo 4: Diseño del sistema operativo propuesto.} Presenta el diseño detallado de HelenOS, incluyendo diagramas de arquitectura, componentes a implementar, políticas de planificación y flujo de ejecución.
+    
+    \item \textbf{Capítulo 5: Herramientas y entorno de desarrollo.} Describe las herramientas necesarias para el desarrollo, incluyendo compiladores, emuladores, control de versiones y editores de código.
+    
+    \item \textbf{Capítulo 6: Planificación de implementación.} Presenta el cronograma tentativo, la estrategia de pruebas y validación, y el análisis de riesgos del proyecto.
+\end{itemize}
+
+\section*{Metodología}
+
+Para el desarrollo de este proyecto se adoptó la metodología ágil Scrum, adaptada al contexto académico del curso. El trabajo se organizó en sprints semanales, permitiendo entregas incrementales de documentación e investigación. Esta metodología facilitó la distribución de tareas entre los integrantes del equipo, aprovechando la naturaleza modular de HelenOS para asignar componentes específicos a cada miembro. Las revisiones periódicas permitieron mantener la calidad del trabajo y realizar ajustes según las necesidades identificadas durante el proceso de investigación \citep{SBOKGuide4th_Spanish}.
+
+La investigación se basó en fuentes primarias, incluyendo la documentación oficial de HelenOS, tesis de grado y maestría relacionadas con el proyecto, artículos académicos publicados por los desarrolladores principales y el análisis directo del código fuente disponible en el repositorio oficial de GitHub \citep{helenos_GitHub}.
