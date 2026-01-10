@@ -1,20 +1,16 @@
-
 \chapter{Argumentos técnicos}
 
-
 \section{Compatibilidad con herramientas de desarrollo}
-
+HelenOS es compatible con herramientas de desarrollo muy populares, además de contar con un repositorio en github, por lo que para poder clonarlo se puede usar git y para posteriormente modificarlo se puede usar cualquier editor de código como Visual Studio Code. Por otro lado, para su proceso de construcción, compilación y ejecución, se usan herramientas estándar de GNU incluyendo sus compiladores GCC mediante configuraciones de compilación cruzada; también para ejecutarse y probarse se puede usar emuladores y máquinas virtuales como QEMU, VirtualBox y más \citep{helenos_GitHub}. Esta razón de la facilidad de uso de las herramientas que se pueden usar para el proceso de desarrollo, es un gran argumento a favor para escoger este sistema operativo como caso de estudio, ya que se puede dedicar más tiempo a analizar el sistema en sí en vez de sus herramientas.
 
 \section{Modularidad y posibilidad de adaptación}
-
+Como se viene repitiendo a lo largo del presente documento, la modularidad es el fuerte de HelenOS, gracias a su arquitectura microkernel multiserver, es su argumento más fuerte a favor para escogerlo, una modularidad muy bien implementada, organizada y documentada. Y es justamente gracias a esta excelente implementación de modularidad que se disfrutan de todos sus beneficios, como un fácil reemplazo, agregación o adaptación de cualquier componente o servicio, sin afectar el kernel del sistema; el permiso de ver cada componente como una caja negra para facilitar su análisis exploratorio y sobre todo el beneficio principal para este proyecto, la escalabilidad. Todos esos beneficios ayudan a planificar el trabajo en equipo, al asignar diferentes módulos a cada integrante, además de un desarrollo incremental sobre el que se puede aplicar metodolgías ágiles.
 
 \section{Lenguaje de programación utilizado}
-
+Este sistema está implementado en el lenguaje de programación C, que como ya se mencionó se asume como conocimiento previo a este curso, por lo que también fue un argumento a favor para su elección, ya que no sería demasiada la carga para analizar el código, más que repasar conceptos del lenguaje; además de que C aunque no fuese un conocimiento previo, es un lenguaje ampliamente utilizado para sistemas operativos debido a que permite un manejo de memoria y recursos del sistema muy preciso. También se usa ensamblador pero en mucha menor medida.
 
 \section{Facilidad de compilación, prueba y depuración}
-
-
+Sobre el proceso de compilación de HelenOS, este se encuentra bastante bien documentado y se basa en makefiles para generar el sistema operativo completo mediante comandos estándar. Además, como se mencionó en anteriores secciones, para su ejecución se pueden usar emuladores o máquinas virtuales, simplificando así el proceso de prueba y ejecución. En cuanto a la depuración, HelenOS proporciona sus propios mecanismos como la salida de información por consola, soporte para símbolos de depuración y poder observar el comportamiento de los servicios en tiempo real y de manera independiente con herramientas adicionales implementadas por los mismos desarrolladores en un repositorio adicional \citep{helenos_ci_GitHub}.
 
 \section{Escalabilidad para futuras extensiones}
-
-
+Como se mencionó en la sección de modularidad, la escalabilidad es uno de los beneficios más claros de HelenOS, permite la incorporación de nuevas funcionalidades/componentes de manera progresiva sin afectar a la estabilidad del kernel. Sin embargo, se debe tener en cuenta que para estas incorporaciones se debe seguir aplicando la arquitectura microkernel multiserver, además de la filosofía modular y los diferentes mecanismos para mantenerla, tales como la comunicación entre processo (IPC) en caso se necesite. Esta alta capacidad de escalabilidad es un argumento muy fuerte a favor de HelenOS para ser escogido como caso de estudio para este proyecto en específico.
